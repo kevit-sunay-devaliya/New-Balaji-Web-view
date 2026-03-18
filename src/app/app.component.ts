@@ -7,11 +7,20 @@ export interface ProductGroup {
   flavorHi: string;
   flavorGu: string;
   segment: string;
+  segments: string[];
   imageURL: string;
   zipperImageURL?: string;
   products: Product[];
   groupTotal: number;
   groupQty: number;
+  groupBox: number;
+  groupPatti: number;
+  groupPkt: number;
+  hasBox: boolean;
+  hasPatti: boolean;
+  hasPkt: boolean;
+  boxBunchLabel: number;
+  pattiLabel: number;
   visible: boolean;
 }
 
@@ -24,6 +33,8 @@ export interface OrderPreviewRow {
   boxBunchQty: number;
   pattiQty: number;
   packetQty: number;
+  boxBunch: number;
+  pattiSize: number;
   amount: number;
 }
 
@@ -38,6 +49,8 @@ export class AppComponent implements OnInit {
   showPreviewMode = false;
   isSubmitting = false;
   searchTerm = '';
+  activeSegment = 'ALL';
+  segments: string[] = [];
 
   grandQty = 0;
   grandAmt = 0;
@@ -67,17 +80,42 @@ export class AppComponent implements OnInit {
           flavorHi: p.falvourHi,
           flavorGu: p.falvourGu,
           segment: p.Segment,
+          segments: [p.Segment],
           imageURL: p.regularImageURL,
           zipperImageURL: p.zipperImageURL,
           products: [],
           groupTotal: 0,
           groupQty: 0,
+          groupBox: 0,
+          groupPatti: 0,
+          groupPkt: 0,
+          hasBox: false,
+          hasPatti: false,
+          hasPkt: false,
+          boxBunchLabel: 0,
+          pattiLabel: 0,
           visible: true,
         });
       }
       groupMap.get(p.falvourEn)!.products.push(p);
+      const grp = groupMap.get(p.falvourEn)!;
+      if (!grp.segments.includes(p.Segment)) {
+        grp.segments.push(p.Segment);
+      }
     }
     this.productGroups = Array.from(groupMap.values());
+    this.segments = [
+      'ALL',
+      ...Array.from(new Set(this.allProducts.map((p) => p.Segment))),
+    ];
+    for (const group of this.productGroups) {
+      group.hasBox = group.products.some((p) => p.boxBunch > 0);
+      group.hasPatti = group.products.some((p) => p.patti > 0);
+      group.hasPkt = group.products.some((p) => p.packet > 0);
+      group.boxBunchLabel =
+        group.products.find((p) => p.boxBunch > 0)?.boxBunch ?? 0;
+      group.pattiLabel = group.products.find((p) => p.patti > 0)?.patti ?? 0;
+    }
   }
 
   onQtyChange(): void {
@@ -91,6 +129,9 @@ export class AppComponent implements OnInit {
       );
       group.groupTotal = 0;
       group.groupQty = 0;
+      group.groupBox = 0;
+      group.groupPatti = 0;
+      group.groupPkt = 0;
       for (const p of group.products) {
         console.log('🚀 ~ AppComponent ~ onQtyChange ~ p:', p);
         const bb = p.orderBoxBunch || 0;
@@ -100,6 +141,9 @@ export class AppComponent implements OnInit {
         const amt = totalUnits > 0 ? totalUnits * p.unitPrice : 0;
         group.groupTotal += amt;
         group.groupQty += bb + pt + pkt;
+        group.groupBox += bb;
+        group.groupPatti += pt;
+        group.groupPkt += pkt;
         this.grandQty += bb + pt + pkt;
         this.grandAmt += amt;
       }
@@ -109,10 +153,19 @@ export class AppComponent implements OnInit {
   onSearch(): void {
     const term = this.searchTerm.toLowerCase();
     for (const group of this.productGroups) {
-      group.visible =
+      const matchesTerm =
         group.flavorEn.toLowerCase().includes(term) ||
         group.products.some((p) => p.productName.toLowerCase().includes(term));
+      const matchesSegment =
+        this.activeSegment === 'ALL' ||
+        group.segments.includes(this.activeSegment);
+      group.visible = matchesTerm && matchesSegment;
     }
+  }
+
+  setSegment(segment: string): void {
+    this.activeSegment = segment;
+    this.onSearch();
   }
 
   toggleTheme(): void {
@@ -154,6 +207,8 @@ export class AppComponent implements OnInit {
             boxBunchQty: bb,
             pattiQty: pt,
             packetQty: pkt,
+            boxBunch: p.boxBunch || 0,
+            pattiSize: p.patti || 0,
             amount: totalUnits * p.unitPrice,
           });
         }
@@ -238,6 +293,35 @@ export class AppComponent implements OnInit {
 
   onInputFocus(product: Product): void {
     this.focusedProduct = product;
+  }
+
+  onlyDigits(event: KeyboardEvent, maxDigits: number): void {
+    const allowed = [
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'Tab',
+    ];
+    if (!allowed.includes(event.key)) {
+      event.preventDefault();
+      return;
+    }
+    const input = event.target as HTMLInputElement;
+    const isDigit = event.key >= '0' && event.key <= '9';
+    if (isDigit && input.value.length >= maxDigits) {
+      event.preventDefault();
+    }
   }
 
   onInputBlur(): void {

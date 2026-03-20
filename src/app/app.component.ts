@@ -36,6 +36,8 @@ export interface OrderPreviewRow {
   boxBunch: number;
   pattiSize: number;
   amount: number;
+  gstPercentage: number;
+  gstAmount: number;
 }
 
 @Component({
@@ -106,6 +108,7 @@ export class AppComponent implements OnInit {
     this.productGroups = Array.from(groupMap.values());
     this.segments = [
       'ALL',
+      'NEW',
       ...Array.from(new Set(this.allProducts.map((p) => p.Segment))),
     ];
     for (const group of this.productGroups) {
@@ -123,17 +126,12 @@ export class AppComponent implements OnInit {
     this.grandAmt = 0;
 
     for (const group of this.productGroups) {
-      console.log(
-        '🚀 ~ AppComponent ~ onQtyChange ~ productGroups:',
-        this.productGroups,
-      );
       group.groupTotal = 0;
       group.groupQty = 0;
       group.groupBox = 0;
       group.groupPatti = 0;
       group.groupPkt = 0;
       for (const p of group.products) {
-        console.log('🚀 ~ AppComponent ~ onQtyChange ~ p:', p);
         const bb = p.orderBoxBunch || 0;
         const pt = p.orderPatti || 0;
         const pkt = p.orderPacket || 0;
@@ -158,7 +156,9 @@ export class AppComponent implements OnInit {
         group.products.some((p) => p.productName.toLowerCase().includes(term));
       const matchesSegment =
         this.activeSegment === 'ALL' ||
-        group.segments.includes(this.activeSegment);
+        (this.activeSegment === 'NEW'
+          ? group.products.some((p) => p.newItem)
+          : group.segments.includes(this.activeSegment));
       group.visible = matchesTerm && matchesSegment;
     }
   }
@@ -198,6 +198,7 @@ export class AppComponent implements OnInit {
         const pkt = p.orderPacket || 0;
         if (bb > 0 || pt > 0 || pkt > 0) {
           const totalUnits = bb * p.boxBunch + pt * (p.patti || 0) + pkt;
+          const baseAmt = totalUnits * p.unitPrice;
           this.previewRows.push({
             flavorEn: p.falvourEn,
             productName: p.productName,
@@ -209,7 +210,9 @@ export class AppComponent implements OnInit {
             packetQty: pkt,
             boxBunch: p.boxBunch || 0,
             pattiSize: p.patti || 0,
-            amount: totalUnits * p.unitPrice,
+            amount: baseAmt,
+            gstPercentage: p.gstPercentage,
+            gstAmount: (baseAmt * p.gstPercentage) / 100,
           });
         }
       }
@@ -232,6 +235,50 @@ export class AppComponent implements OnInit {
     );
   }
 
+  get previewGrandGst(): number {
+    return this.previewRows.reduce((sum, r) => sum + r.gstAmount, 0);
+  }
+
+  get previewGrandGstTotal(): number {
+    return this.previewRows.reduce((sum, r) => sum + r.amount + r.gstAmount, 0);
+  }
+
+  get taxableValue(): number {
+    return this.previewGrandAmt;
+  }
+
+  get cgst(): number {
+    return this.previewGrandGst / 2;
+  }
+
+  get sgst(): number {
+    return this.previewGrandGst / 2;
+  }
+
+  get subTotal(): number {
+    return this.previewGrandAmt + this.previewGrandGst;
+  }
+
+  get rounding(): number {
+    return Math.round(this.subTotal) - this.subTotal;
+  }
+
+  get grandTotalRounded(): number {
+    return Math.round(this.subTotal);
+  }
+
+  get previewTotalBox(): number {
+    return this.previewRows.reduce((sum, r) => sum + r.boxBunchQty, 0);
+  }
+
+  get previewTotalPatti(): number {
+    return this.previewRows.reduce((sum, r) => sum + r.pattiQty, 0);
+  }
+
+  get previewTotalPkt(): number {
+    return this.previewRows.reduce((sum, r) => sum + r.packetQty, 0);
+  }
+
   productTrackBy(index: number, product: Product): string {
     return product.productId;
   }
@@ -250,7 +297,7 @@ export class AppComponent implements OnInit {
 
     // const headers = new HttpHeaders({
     //   'Content-Type': 'application/json',
-    //   Authorization: 'Y!*c7cGdteUdPSCV8HnV5IDSHGmFvM%U@xd2ikJJAHB5p@M3y**m',
+    //   Authorization: '',
     // });
 
     // const items = this.previewRows.map((row) => ({

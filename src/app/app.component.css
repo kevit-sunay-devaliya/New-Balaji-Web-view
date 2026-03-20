@@ -1001,10 +1001,12 @@ tbody tr:nth-child(even) {
     width: 90px;
     min-width: 90px;
     flex-shrink: 0;
-    padding-bottom: 0;
-    padding-right: 8px;
+    padding: 0;
     border-bottom: none;
     border-right: 1px solid #f0f0f0;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
   }
 
   .app-wrapper.dark .product-image {

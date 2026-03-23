@@ -1,4 +1,12 @@
 <div class="app-wrapper" [class.dark]="isDarkMode">
+  <!-- Toast notification -->
+  <div class="toast-message" [class.toast-visible]="toastVisible">
+    <span class="toast-icon">⚠️</span>
+    <div class="toast-body">
+      <span class="toast-title">Invalid Input</span>
+      <span class="toast-desc">{{ toastMessage }}</span>
+    </div>
+  </div>
   <header class="header" *ngIf="!showPreviewMode">
     <div class="brand-row">
       <div class="brand-identity">
@@ -8,31 +16,6 @@
           class="brand-logo"
         />
       </div>
-      <div class="header-chips-row">
-        <div class="stat-chip qty-chip">
-          <span class="chip-label">Items</span>
-          <span class="chip-value">{{ grandQty }}</span>
-        </div>
-        <div class="stat-chip amt-chip">
-          <span class="chip-label">Total</span>
-          <span class="chip-value">₹{{ grandAmt.toFixed(2) }}</span>
-        </div>
-        <button
-          class="btn btn-cart"
-          [class.active]="isCartMode"
-          (click)="toggleCart()"
-        >
-          <span class="chip-label">Cart</span>
-          <span class="chip-value">🛒</span>
-        </button>
-        <button class="btn btn-theme" (click)="toggleTheme()">
-          <span class="chip-label">Mode</span>
-          <span class="chip-value">{{ isDarkMode ? "☀️" : "🌙" }}</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="search-row">
       <div class="search-wrapper">
         <span class="search-icon-prefix">🔍</span>
         <input
@@ -43,6 +26,37 @@
           class="search-input"
         />
       </div>
+    </div>
+
+    <div class="header-chips-row">
+      <div class="stat-chip box-chip">
+        <span class="chip-label">BOX</span>
+        <span class="chip-value">{{ grandBox }}</span>
+      </div>
+      <div class="stat-chip patti-chip">
+        <span class="chip-label">PATTI</span>
+        <span class="chip-value">{{ grandPatti }}</span>
+      </div>
+      <div class="stat-chip pkt-chip">
+        <span class="chip-label">PKT</span>
+        <span class="chip-value">{{ grandPkt }}</span>
+      </div>
+      <div class="stat-chip amt-chip">
+        <span class="chip-label">Total</span>
+        <span class="chip-value">₹{{ grandAmt.toFixed(2) }}</span>
+      </div>
+      <button
+        class="btn btn-cart"
+        [class.active]="isCartMode"
+        (click)="toggleCart()"
+      >
+        <span class="chip-label">Cart</span>
+        <span class="chip-value">🛒</span>
+      </button>
+      <button class="btn btn-theme" (click)="toggleTheme()">
+        <span class="chip-label">Mode</span>
+        <span class="chip-value">{{ isDarkMode ? "☀️" : "🌙" }}</span>
+      </button>
     </div>
 
     <div class="segment-filter-row">

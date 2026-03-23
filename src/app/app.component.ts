@@ -51,11 +51,18 @@ export class AppComponent implements OnInit {
   showPreviewMode = false;
   isSubmitting = false;
   searchTerm = '';
+
+  toastMessage = '';
+  toastVisible = false;
+  private toastTimer: any = null;
   activeSegment = 'ALL';
   segments: string[] = [];
 
   grandQty = 0;
   grandAmt = 0;
+  grandBox = 0;
+  grandPatti = 0;
+  grandPkt = 0;
 
   allProducts: Product[] = [];
   productGroups: ProductGroup[] = [];
@@ -124,6 +131,9 @@ export class AppComponent implements OnInit {
   onQtyChange(): void {
     this.grandQty = 0;
     this.grandAmt = 0;
+    this.grandBox = 0;
+    this.grandPatti = 0;
+    this.grandPkt = 0;
 
     for (const group of this.productGroups) {
       group.groupTotal = 0;
@@ -144,6 +154,9 @@ export class AppComponent implements OnInit {
         group.groupPkt += pkt;
         this.grandQty += bb + pt + pkt;
         this.grandAmt += amt;
+        this.grandBox += bb;
+        this.grandPatti += pt;
+        this.grandPkt += pkt;
       }
     }
   }
@@ -368,7 +381,19 @@ export class AppComponent implements OnInit {
     const isDigit = event.key >= '0' && event.key <= '9';
     if (isDigit && input.value.length >= maxDigits) {
       event.preventDefault();
+      this.showToast(`Max ${maxDigits} digit${maxDigits > 1 ? 's' : ''} allowed (0–${'9'.repeat(maxDigits)})`);
     }
+  }
+
+  showToast(message: string): void {
+    this.toastMessage = message;
+    this.toastVisible = true;
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.toastTimer = setTimeout(() => {
+      this.toastVisible = false;
+    }, 2500);
   }
 
   onInputBlur(): void {

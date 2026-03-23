@@ -19,7 +19,6 @@ export interface ProductGroup {
   hasPkt: boolean;
   boxBunchLabel: number;
   pattiLabel: number;
-  visible: boolean;
 }
 
 export interface OrderPreviewRow {

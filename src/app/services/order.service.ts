@@ -1,33 +1,76 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { Product, PRODUCTS } from '../products.data';
 import { ProductGroup, OrderPreviewRow } from '../models/product-group.model';
 
 const STORAGE_KEY = 'balaji_order_quantities';
-const THEME_KEY = 'balaji_theme';
 const CART_KEY = 'balaji_cart_mode';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
-  isDarkMode = false;
-  isCartMode = false;
-  searchTerm = '';
-  activeSegment = 'ALL';
-  segments: string[] = [];
+  // ── Private BehaviorSubjects ───────────────────────────────────────────────
+  private _isCartMode = new BehaviorSubject<boolean>(false);
+  private _searchTerm = new BehaviorSubject<string>('');
+  private _activeSegment = new BehaviorSubject<string>('ALL');
+  private _segments = new BehaviorSubject<string[]>([]);
+  private _productGroups = new BehaviorSubject<ProductGroup[]>([]);
+  private _grandQty = new BehaviorSubject<number>(0);
+  private _grandAmt = new BehaviorSubject<number>(0);
+  private _grandBox = new BehaviorSubject<number>(0);
+  private _grandPatti = new BehaviorSubject<number>(0);
+  private _grandPkt = new BehaviorSubject<number>(0);
 
-  grandQty = 0;
-  grandAmt = 0;
-  grandBox = 0;
-  grandPatti = 0;
-  grandPkt = 0;
+  // ── Public observables (consumed by templates via async pipe) ──────────────
+  readonly isCartMode$ = this._isCartMode.asObservable();
+  readonly searchTerm$ = this._searchTerm.asObservable();
+  readonly activeSegment$ = this._activeSegment.asObservable();
+  readonly segments$ = this._segments.asObservable();
+  readonly productGroups$ = this._productGroups.asObservable();
+  readonly grandQty$ = this._grandQty.asObservable();
+  readonly grandAmt$ = this._grandAmt.asObservable();
+  readonly grandBox$ = this._grandBox.asObservable();
+  readonly grandPatti$ = this._grandPatti.asObservable();
+  readonly grandPkt$ = this._grandPkt.asObservable();
 
+  // ── Getters for current values (used internally and for ngModel binding) ───
+  get isCartMode(): boolean {
+    return this._isCartMode.value;
+  }
+  get searchTerm(): string {
+    return this._searchTerm.value;
+  }
+  set searchTerm(val: string) {
+    this._searchTerm.next(val);
+  }
+  get activeSegment(): string {
+    return this._activeSegment.value;
+  }
+  get segments(): string[] {
+    return this._segments.value;
+  }
+  get productGroups(): ProductGroup[] {
+    return this._productGroups.value;
+  }
+  get grandQty(): number {
+    return this._grandQty.value;
+  }
+  get grandAmt(): number {
+    return this._grandAmt.value;
+  }
+  get grandBox(): number {
+    return this._grandBox.value;
+  }
+  get grandPatti(): number {
+    return this._grandPatti.value;
+  }
+  get grandPkt(): number {
+    return this._grandPkt.value;
+  }
+
+  // ── Internal full (unfiltered) groups list ────────────────────────────────
   allProducts: Product[] = [];
-  productGroups: ProductGroup[] = [];
-
+  private allGroups: ProductGroup[] = [];
   focusedProduct: Product | null = null;
-
-  toastMessage = '';
-  toastVisible = false;
-  private toastTimer: any = null;
 
   constructor() {
     this.init();
@@ -35,8 +78,7 @@ export class OrderService {
 
   private init(): void {
     try {
-      this.isDarkMode = localStorage.getItem(THEME_KEY) === 'dark';
-      this.isCartMode = localStorage.getItem(CART_KEY) === 'true';
+      this._isCartMode.next(localStorage.getItem(CART_KEY) === 'true');
     } catch {
       // storage unavailable (e.g. incognito with blocked storage)
     }
@@ -127,7 +169,6 @@ export class OrderService {
           hasPkt: false,
           boxBunchLabel: 0,
           pattiLabel: 0,
-          visible: true,
         });
       }
       groupMap.get(p.falvourEn)!.products.push(p);
@@ -136,13 +177,13 @@ export class OrderService {
         grp.segments.push(p.Segment);
       }
     }
-    this.productGroups = Array.from(groupMap.values());
-    this.segments = [
+    this.allGroups = Array.from(groupMap.values());
+    this._segments.next([
       'ALL',
       'NEW',
       ...Array.from(new Set(this.allProducts.map((p) => p.Segment))),
-    ];
-    for (const group of this.productGroups) {
+    ]);
+    for (const group of this.allGroups) {
       group.hasBox = group.products.some((p) => p.boxBunch > 0);
       group.hasPatti = group.products.some((p) => p.patti > 0);
       group.hasPkt = group.products.some((p) => p.packet > 0);
@@ -153,13 +194,13 @@ export class OrderService {
   }
 
   private recalcTotals(): void {
-    this.grandQty = 0;
-    this.grandAmt = 0;
-    this.grandBox = 0;
-    this.grandPatti = 0;
-    this.grandPkt = 0;
+    let qty = 0,
+      amt = 0,
+      box = 0,
+      patti = 0,
+      pkt = 0;
 
-    for (const group of this.productGroups) {
+    for (const group of this.allGroups) {
       group.groupTotal = 0;
       group.groupQty = 0;
       group.groupBox = 0;
@@ -168,21 +209,27 @@ export class OrderService {
       for (const p of group.products) {
         const bb = p.orderBoxBunch || 0;
         const pt = p.orderPatti || 0;
-        const pkt = p.orderPacket || 0;
-        const totalUnits = bb * p.boxBunch + pt * (p.patti || 0) + pkt;
-        const amt = totalUnits > 0 ? totalUnits * p.unitPrice : 0;
-        group.groupTotal += amt;
-        group.groupQty += bb + pt + pkt;
+        const pktVal = p.orderPacket || 0;
+        const totalUnits = bb * p.boxBunch + pt * (p.patti || 0) + pktVal;
+        const a = totalUnits > 0 ? totalUnits * p.unitPrice : 0;
+        group.groupTotal += a;
+        group.groupQty += bb + pt + pktVal;
         group.groupBox += bb;
         group.groupPatti += pt;
-        group.groupPkt += pkt;
-        this.grandQty += bb + pt + pkt;
-        this.grandAmt += amt;
-        this.grandBox += bb;
-        this.grandPatti += pt;
-        this.grandPkt += pkt;
+        group.groupPkt += pktVal;
+        qty += bb + pt + pktVal;
+        amt += a;
+        box += bb;
+        patti += pt;
+        pkt += pktVal;
       }
     }
+
+    this._grandQty.next(qty);
+    this._grandAmt.next(amt);
+    this._grandBox.next(box);
+    this._grandPatti.next(patti);
+    this._grandPkt.next(pkt);
   }
 
   onQtyChange(): void {
@@ -191,38 +238,31 @@ export class OrderService {
   }
 
   onSearch(): void {
-    const term = this.searchTerm.toLowerCase();
-    for (const group of this.productGroups) {
+    const term = this._searchTerm.value.toLowerCase();
+    const activeSeg = this._activeSegment.value;
+    const filtered = this.allGroups.filter((group) => {
       const matchesTerm =
         group.flavorEn.toLowerCase().includes(term) ||
         group.products.some((p) => p.productName.toLowerCase().includes(term));
       const matchesSegment =
-        this.activeSegment === 'ALL' ||
-        (this.activeSegment === 'NEW'
+        activeSeg === 'ALL' ||
+        (activeSeg === 'NEW'
           ? group.products.some((p) => p.newItem)
-          : group.segments.includes(this.activeSegment));
-      group.visible = matchesTerm && matchesSegment;
-    }
+          : group.segments.includes(activeSeg));
+      return matchesTerm && matchesSegment;
+    });
+    this._productGroups.next(filtered);
   }
 
   setSegment(segment: string): void {
-    this.activeSegment = segment;
+    this._activeSegment.next(segment);
     this.onSearch();
   }
 
-  toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
-    try {
-      localStorage.setItem(THEME_KEY, this.isDarkMode ? 'dark' : 'light');
-    } catch {
-      // storage unavailable
-    }
-  }
-
   toggleCart(): void {
-    this.isCartMode = !this.isCartMode;
+    this._isCartMode.next(!this._isCartMode.value);
     try {
-      localStorage.setItem(CART_KEY, String(this.isCartMode));
+      localStorage.setItem(CART_KEY, String(this._isCartMode.value));
     } catch {
       // storage unavailable
     }
@@ -230,24 +270,24 @@ export class OrderService {
   }
 
   private applyCartFilter(): void {
-    for (const group of this.productGroups) {
-      if (this.isCartMode) {
-        group.visible = group.products.some(
+    if (this._isCartMode.value) {
+      const filtered = this.allGroups.filter((group) =>
+        group.products.some(
           (p) =>
             (p.orderBoxBunch || 0) > 0 ||
             (p.orderPatti || 0) > 0 ||
             (p.orderPacket || 0) > 0,
-        );
-      } else {
-        group.visible = true;
-        this.onSearch();
-      }
+        ),
+      );
+      this._productGroups.next(filtered);
+    } else {
+      this.onSearch();
     }
   }
 
   buildPreviewRows(): OrderPreviewRow[] {
     const rows: OrderPreviewRow[] = [];
-    for (const group of this.productGroups) {
+    for (const group of this.allGroups) {
       for (const p of group.products) {
         const bb = p.orderBoxBunch || 0;
         const pt = p.orderPatti || 0;
@@ -308,52 +348,9 @@ export class OrderService {
     } catch {
       // storage unavailable
     }
-    this.isCartMode = false;
+    this._isCartMode.next(false);
     this.recalcTotals();
     this.applyCartFilter();
-  }
-
-  onlyDigits(event: KeyboardEvent, maxDigits: number): void {
-    const allowed = [
-      '0',
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      'Backspace',
-      'Delete',
-      'ArrowLeft',
-      'ArrowRight',
-      'Tab',
-    ];
-    if (!allowed.includes(event.key)) {
-      event.preventDefault();
-      return;
-    }
-    const input = event.target as HTMLInputElement;
-    const isDigit = event.key >= '0' && event.key <= '9';
-    if (isDigit && input.value.length >= maxDigits) {
-      event.preventDefault();
-      this.showToast(
-        `Max ${maxDigits} digit${maxDigits > 1 ? 's' : ''} allowed (0–${'9'.repeat(maxDigits)})`,
-      );
-    }
-  }
-
-  showToast(message: string): void {
-    this.toastMessage = message;
-    this.toastVisible = true;
-    if (this.toastTimer) {
-      clearTimeout(this.toastTimer);
-    }
-    this.toastTimer = setTimeout(() => {
-      this.toastVisible = false;
-    }, 2500);
   }
 
   productTrackBy(_index: number, product: Product): string {

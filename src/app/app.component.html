@@ -1,10 +1,12 @@
-<div class="app-wrapper" [class.dark]="orderService.isDarkMode">
-  <div class="toast-message" [class.toast-visible]="orderService.toastVisible">
-    <span class="toast-icon">⚠️</span>
-    <div class="toast-body">
-      <span class="toast-title">Invalid Input</span>
-      <span class="toast-desc">{{ orderService.toastMessage }}</span>
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="app-wrapper" [class.dark]="vm.isDarkMode">
+    <div class="toast-message" [class.toast-visible]="vm.toastVisible">
+      <span class="toast-icon">⚠️</span>
+      <div class="toast-body">
+        <span class="toast-title">Invalid Input</span>
+        <span class="toast-desc">{{ vm.toastMessage }}</span>
+      </div>
     </div>
+    <router-outlet></router-outlet>
   </div>
-  <router-outlet></router-outlet>
-</div>
+</ng-container>

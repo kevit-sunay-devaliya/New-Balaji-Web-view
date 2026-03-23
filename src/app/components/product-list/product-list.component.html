@@ -1,15 +1,16 @@
 <app-header></app-header>
 
-<div class="bottom-bar" *ngIf="orderService.grandQty > 0">
-  <button class="btn btn-continue" (click)="showPreview()">
-    🧾 &nbsp;View Order Summary &nbsp;→
-  </button>
-</div>
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="bottom-bar" *ngIf="vm.grandQty > 0">
+    <button class="btn btn-continue" (click)="showPreview()">
+      🧾 &nbsp;View Order Summary &nbsp;→
+    </button>
+  </div>
 
-<main class="container">
-  <ng-container
-    *ngFor="let group of orderService.productGroups; trackBy: groupTrackBy"
-  >
-    <app-product-card *ngIf="group.visible" [group]="group"></app-product-card>
-  </ng-container>
-</main>
+  <main class="container">
+    <app-product-card
+      *ngFor="let group of vm.productGroups; trackBy: groupTrackBy"
+      [group]="group"
+    ></app-product-card>
+  </main>
+</ng-container>

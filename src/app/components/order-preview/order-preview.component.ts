@@ -12,6 +12,13 @@ export class OrderPreviewComponent implements OnInit {
   previewRows: OrderPreviewRow[] = [];
   isSubmitting = false;
 
+  previewGrandAmt = 0;
+  previewGrandQty = 0;
+  previewGrandGst = 0;
+  previewGrandGstTotal = 0;
+  subTotal = 0;
+  grandTotalRounded = 0;
+
   constructor(
     public orderService: OrderService,
     private router: Router,
@@ -21,7 +28,26 @@ export class OrderPreviewComponent implements OnInit {
     this.previewRows = this.orderService.buildPreviewRows();
     if (this.previewRows.length === 0) {
       this.router.navigate(['/order']);
+      return;
     }
+    this.previewGrandAmt = this.previewRows.reduce(
+      (sum, r) => sum + r.amount,
+      0,
+    );
+    this.previewGrandQty = this.previewRows.reduce(
+      (sum, r) => sum + r.boxBunchQty + r.pattiQty + r.packetQty,
+      0,
+    );
+    this.previewGrandGst = this.previewRows.reduce(
+      (sum, r) => sum + r.gstAmount,
+      0,
+    );
+    this.previewGrandGstTotal = this.previewRows.reduce(
+      (sum, r) => sum + r.amount + r.gstAmount,
+      0,
+    );
+    this.subTotal = this.previewGrandAmt + this.previewGrandGst;
+    this.grandTotalRounded = Math.round(this.subTotal);
   }
 
   backToList(): void {
@@ -33,32 +59,5 @@ export class OrderPreviewComponent implements OnInit {
     this.router.navigate(['/order']).then(() => {
       window.location.href = 'https://wa.me/+919313234679';
     });
-  }
-
-  get previewGrandAmt(): number {
-    return this.previewRows.reduce((sum, r) => sum + r.amount, 0);
-  }
-
-  get previewGrandQty(): number {
-    return this.previewRows.reduce(
-      (sum, r) => sum + r.boxBunchQty + r.pattiQty + r.packetQty,
-      0,
-    );
-  }
-
-  get previewGrandGst(): number {
-    return this.previewRows.reduce((sum, r) => sum + r.gstAmount, 0);
-  }
-
-  get previewGrandGstTotal(): number {
-    return this.previewRows.reduce((sum, r) => sum + r.amount + r.gstAmount, 0);
-  }
-
-  get subTotal(): number {
-    return this.previewGrandAmt + this.previewGrandGst;
-  }
-
-  get grandTotalRounded(): number {
-    return Math.round(this.subTotal);
   }
 }

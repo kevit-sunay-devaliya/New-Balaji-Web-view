@@ -1,0 +1,65 @@
+<header class="header">
+  <div class="brand-row">
+    <div class="brand-identity">
+      <img
+        src="assets/images/balaji-new-logo.svg"
+        alt="Balaji Logo"
+        class="brand-logo"
+      />
+    </div>
+    <div class="search-wrapper">
+      <span class="search-icon-prefix">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="orderService.searchTerm"
+        (ngModelChange)="orderService.onSearch()"
+        placeholder="Search product or flavour..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <div class="header-chips-row">
+    <div class="stat-chip box-chip">
+      <span class="chip-label">BOX</span>
+      <span class="chip-value">{{ orderService.grandBox }}</span>
+    </div>
+    <div class="stat-chip patti-chip">
+      <span class="chip-label">PATTI</span>
+      <span class="chip-value">{{ orderService.grandPatti }}</span>
+    </div>
+    <div class="stat-chip pkt-chip">
+      <span class="chip-label">PKT</span>
+      <span class="chip-value">{{ orderService.grandPkt }}</span>
+    </div>
+    <div class="stat-chip amt-chip">
+      <span class="chip-label">Total</span>
+      <span class="chip-value">₹{{ orderService.grandAmt.toFixed(2) }}</span>
+    </div>
+    <button
+      class="btn btn-cart"
+      [class.active]="orderService.isCartMode"
+      (click)="orderService.toggleCart()"
+    >
+      <span class="chip-label">Cart</span>
+      <span class="chip-value">🛒</span>
+    </button>
+    <button class="btn btn-theme" (click)="orderService.toggleTheme()">
+      <span class="chip-label">Mode</span>
+      <span class="chip-value">{{
+        orderService.isDarkMode ? "☀️" : "🌙"
+      }}</span>
+    </button>
+  </div>
+
+  <div class="segment-filter-row">
+    <button
+      *ngFor="let seg of orderService.segments"
+      class="seg-btn"
+      [class.seg-active]="orderService.activeSegment === seg"
+      (click)="orderService.setSegment(seg)"
+    >
+      <span *ngIf="seg === 'NEW'">✨ </span>{{ seg }}
+    </button>
+  </div>
+</header>

@@ -1,0 +1,100 @@
+<div class="product-card">
+  <div class="product-image">
+    <img
+      [src]="orderService.getGroupImage(group)"
+      [alt]="group.flavorEn"
+      loading="lazy"
+    />
+    <span class="segment-badge">{{ group.flavorEn }}</span>
+  </div>
+
+  <div class="product-details">
+    <div class="product-total">
+      <span *ngIf="group.hasBox"
+        >BOX: <strong>{{ group.groupBox || 0 }}</strong></span
+      >
+      <span *ngIf="group.hasPatti"
+        >PATTI: <strong>{{ group.groupPatti || 0 }}</strong></span
+      >
+      <span *ngIf="group.hasPkt"
+        >PKT: <strong>{{ group.groupPkt || 0 }}</strong></span
+      >
+      &nbsp;|&nbsp; <strong>₹{{ group.groupTotal.toFixed(2) }}</strong>
+    </div>
+    <div class="flavor-name">{{ group.flavorEn }}</div>
+    <div class="flavor-sub">{{ group.flavorHi }}</div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>MRP</th>
+            <th>Rate</th>
+            <th>WT(g)</th>
+            <th *ngIf="group.hasBox">BOX({{ group.boxBunchLabel }})</th>
+            <th *ngIf="group.hasPatti">PATTI({{ group.pattiLabel }})</th>
+            <th *ngIf="group.hasPkt">PKT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of group.products; trackBy: productTrackBy">
+            <td class="mrp-cell">₹{{ p.MRP }}</td>
+            <td>₹{{ p.unitPrice }}</td>
+            <td>{{ p.weight }}g</td>
+            <td *ngIf="group.hasBox">
+              <input
+                type="number"
+                inputmode="numeric"
+                min="0"
+                max="99"
+                step="1"
+                [(ngModel)]="p.orderBoxBunch"
+                (ngModelChange)="orderService.onQtyChange()"
+                (focus)="orderService.onInputFocus(p)"
+                (blur)="orderService.onInputBlur()"
+                (keydown)="orderService.onlyDigits($event, 2)"
+                class="qty-input"
+                [class.has-value]="(p.orderBoxBunch || 0) > 0"
+                [disabled]="p.boxBunch === 0"
+              />
+            </td>
+            <td *ngIf="group.hasPatti">
+              <input
+                type="number"
+                inputmode="numeric"
+                min="0"
+                max="999"
+                step="1"
+                [(ngModel)]="p.orderPatti"
+                (ngModelChange)="orderService.onQtyChange()"
+                (focus)="orderService.onInputFocus(p)"
+                (blur)="orderService.onInputBlur()"
+                (keydown)="orderService.onlyDigits($event, 3)"
+                class="qty-input"
+                [class.has-value]="(p.orderPatti || 0) > 0"
+                [disabled]="p.patti === 0"
+              />
+            </td>
+            <td *ngIf="group.hasPkt">
+              <input
+                type="number"
+                inputmode="numeric"
+                min="0"
+                max="999"
+                step="1"
+                [(ngModel)]="p.orderPacket"
+                (ngModelChange)="orderService.onQtyChange()"
+                (focus)="orderService.onInputFocus(p)"
+                (blur)="orderService.onInputBlur()"
+                (keydown)="orderService.onlyDigits($event, 3)"
+                class="qty-input"
+                [class.has-value]="(p.orderPacket || 0) > 0"
+                [disabled]="p.packet === 0"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,179 @@
+<div class="preview-page">
+  <div class="preview-header">
+    <h2>📋 Order Preview</h2>
+    <div class="preview-totals">
+      <span
+        >Total Qty: <strong>{{ previewGrandQty }}</strong></span
+      >
+      <span class="sep">|</span>
+      <span
+        >Total Amt: <strong>₹{{ previewGrandAmt.toFixed(2) }}</strong></span
+      >
+    </div>
+  </div>
+
+  <div class="preview-empty" *ngIf="previewRows.length === 0">
+    No products ordered yet. Go back and add quantities.
+  </div>
+
+  <div class="table-scroll preview-table-wrap" *ngIf="previewRows.length > 0">
+    <table class="preview-table">
+      <colgroup>
+        <col style="width: 44px" />
+        <col />
+        <col style="width: 62px" />
+        <col style="width: 72px" />
+        <col style="width: 56px" />
+        <col style="width: 56px" />
+        <col style="width: 56px" />
+        <col style="width: 84px" />
+        <col style="width: 62px" />
+        <col style="width: 96px" />
+        <col style="width: 100px" />
+        <col style="width: 108px" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Sr.</th>
+          <th style="text-align: left">Product</th>
+          <th>MRP</th>
+          <th>Rate</th>
+          <th>Box</th>
+          <th>Patti</th>
+          <th>Pkt</th>
+          <th>Total Pkts</th>
+          <th>GST Rate</th>
+          <th>Tax Amt</th>
+          <th>Taxable Amt</th>
+          <th>Net Payable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of previewRows; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td class="preview-name">{{ row.productName }}</td>
+          <td>₹{{ row.mrp }}</td>
+          <td>₹{{ row.unitPrice }}</td>
+          <td>{{ row.boxBunchQty || "-" }}</td>
+          <td>{{ row.pattiQty || "-" }}</td>
+          <td>{{ row.packetQty || "-" }}</td>
+          <td>
+            <strong>{{
+              row.boxBunchQty * row.boxBunch +
+                row.pattiQty * row.pattiSize +
+                row.packetQty
+            }}</strong>
+          </td>
+          <td class="amt-cell gst-cell">{{ row.gstPercentage }}%</td>
+          <td class="amt-cell gst-cell">₹{{ row.gstAmount.toFixed(2) }}</td>
+          <td class="amt-cell">₹{{ row.amount.toFixed(2) }}</td>
+          <td class="amt-cell">
+            ₹{{ (row.amount + row.gstAmount).toFixed(2) }}
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="10" class="footer-label"><strong>TOTAL</strong></td>
+          <td class="amt-cell footer-total">
+            <strong>₹{{ previewGrandAmt.toFixed(2) }}</strong>
+          </td>
+          <td class="amt-cell footer-total">
+            <strong>₹{{ previewGrandGstTotal.toFixed(2) }}</strong>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Mobile cards (shown on small screens via CSS) -->
+  <div class="preview-cards" *ngIf="previewRows.length > 0">
+    <div class="preview-card" *ngFor="let row of previewRows; let i = index">
+      <div class="preview-card-header">
+        <span class="preview-card-sr">{{ i + 1 }}</span>
+        <span class="preview-card-name">{{ row.productName }}</span>
+      </div>
+      <div class="preview-card-body">
+        <div class="preview-card-row">
+          <div class="preview-card-stat">
+            <span class="pcs-label">MRP</span>
+            <span class="pcs-value">₹{{ row.mrp }}</span>
+          </div>
+          <div class="preview-card-stat">
+            <span class="pcs-label">Rate</span>
+            <span class="pcs-value">₹{{ row.unitPrice }}</span>
+          </div>
+          <div class="preview-card-stat" *ngIf="row.boxBunchQty">
+            <span class="pcs-label">Box</span>
+            <span class="pcs-value">{{ row.boxBunchQty }}</span>
+          </div>
+          <div class="preview-card-stat" *ngIf="row.pattiQty">
+            <span class="pcs-label">Patti</span>
+            <span class="pcs-value">{{ row.pattiQty }}</span>
+          </div>
+          <div class="preview-card-stat" *ngIf="row.packetQty">
+            <span class="pcs-label">Pkt</span>
+            <span class="pcs-value">{{ row.packetQty }}</span>
+          </div>
+          <div class="preview-card-stat">
+            <span class="pcs-label">Total Pkts</span>
+            <span class="pcs-value pcs-highlight">{{
+              row.boxBunchQty * row.boxBunch +
+                row.pattiQty * row.pattiSize +
+                row.packetQty
+            }}</span>
+          </div>
+        </div>
+        <div class="preview-card-financials">
+          <div class="preview-fin-item">
+            <span class="fin-label">Taxable Amt</span>
+            <span class="fin-value">₹{{ row.amount.toFixed(2) }}</span>
+          </div>
+          <div class="preview-fin-item">
+            <span class="fin-label">GST ({{ row.gstPercentage }}%)</span>
+            <span class="fin-value gst-cell"
+              >₹{{ row.gstAmount.toFixed(2) }}</span
+            >
+          </div>
+        </div>
+        <div class="preview-card-netpay">
+          <span class="netpay-label">Net Payable</span>
+          <span class="netpay-value"
+            >₹{{ (row.amount + row.gstAmount).toFixed(2) }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-cards-footer">
+      <div class="footer-row">
+        <span class="footer-row-label">Total Taxable</span>
+        <span class="footer-row-value">₹{{ previewGrandAmt.toFixed(2) }}</span>
+      </div>
+      <div class="footer-row">
+        <span class="footer-row-label">Total GST</span>
+        <span class="footer-row-value gst-cell"
+          >₹{{ previewGrandGst.toFixed(2) }}</span
+        >
+      </div>
+      <div class="footer-row footer-grand">
+        <span class="footer-row-label">Grand Total</span>
+        <span class="footer-row-value"
+          >₹{{ previewGrandGstTotal.toFixed(2) }}</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-actions">
+    <button class="btn continue-btn" (click)="backToList()">← Back</button>
+    <button
+      class="btn submit-btn"
+      (click)="onSubmit()"
+      [disabled]="isSubmitting"
+      *ngIf="previewRows.length > 0"
+    >
+      {{ isSubmitting ? "Submitting..." : "✅ Submit Order" }}
+    </button>
+  </div>
+</div>

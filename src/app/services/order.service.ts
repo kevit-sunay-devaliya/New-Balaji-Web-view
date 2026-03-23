@@ -34,8 +34,12 @@ export class OrderService {
   }
 
   private init(): void {
-    this.isDarkMode = localStorage.getItem(THEME_KEY) === 'dark';
-    this.isCartMode = localStorage.getItem(CART_KEY) === 'true';
+    try {
+      this.isDarkMode = localStorage.getItem(THEME_KEY) === 'dark';
+      this.isCartMode = localStorage.getItem(CART_KEY) === 'true';
+    } catch {
+      // storage unavailable (e.g. incognito with blocked storage)
+    }
 
     this.allProducts = PRODUCTS.map((p) => ({
       ...p,
@@ -51,7 +55,12 @@ export class OrderService {
   }
 
   private restoreQuantities(): void {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      // storage unavailable
+    }
     if (!saved) return;
     try {
       const data: Record<
@@ -88,7 +97,11 @@ export class OrderService {
         };
       }
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      // storage full or unavailable
+    }
   }
 
   buildGroups(): void {
@@ -199,12 +212,20 @@ export class OrderService {
 
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem(THEME_KEY, this.isDarkMode ? 'dark' : 'light');
+    try {
+      localStorage.setItem(THEME_KEY, this.isDarkMode ? 'dark' : 'light');
+    } catch {
+      // storage unavailable
+    }
   }
 
   toggleCart(): void {
     this.isCartMode = !this.isCartMode;
-    localStorage.setItem(CART_KEY, String(this.isCartMode));
+    try {
+      localStorage.setItem(CART_KEY, String(this.isCartMode));
+    } catch {
+      // storage unavailable
+    }
     this.applyCartFilter();
   }
 
@@ -281,8 +302,12 @@ export class OrderService {
       p.orderPatti = undefined;
       p.orderPacket = undefined;
     }
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(CART_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CART_KEY);
+    } catch {
+      // storage unavailable
+    }
     this.isCartMode = false;
     this.recalcTotals();
     this.applyCartFilter();

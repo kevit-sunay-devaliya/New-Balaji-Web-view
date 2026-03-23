@@ -8,4 +8,8 @@ import { OrderService } from '../../services/order.service';
 })
 export class HeaderComponent {
   constructor(public orderService: OrderService) {}
+
+  trackBySegment(_index: number, segment: string): string {
+    return segment;
+  }
 }

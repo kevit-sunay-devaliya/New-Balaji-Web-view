@@ -19,7 +19,7 @@
       <span *ngIf="group.hasPkt"
         >PKT: <strong>{{ group.groupPkt || 0 }}</strong></span
       >
-      &nbsp;|&nbsp; <strong>₹{{ group.groupTotal.toFixed(2) }}</strong>
+      &nbsp;|&nbsp; <strong>₹{{ group.groupTotal | indianCurrency }}</strong>
     </div>
     <div class="flavor-name">{{ group.flavorEn }}</div>
     <div class="flavor-sub">{{ group.flavorHi }}</div>
@@ -38,8 +38,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let p of group.products; trackBy: productTrackBy">
-            <td class="mrp-cell">₹{{ p.MRP }}</td>
-            <td>₹{{ p.unitPrice }}</td>
+            <td class="mrp-cell">₹{{ p.MRP | indianCurrency }}</td>
+            <td>₹{{ p.unitPrice | indianCurrency }}</td>
             <td>{{ p.weight }}g</td>
             <td *ngIf="group.hasBox">
               <input

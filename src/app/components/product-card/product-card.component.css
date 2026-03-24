@@ -122,7 +122,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-wrap: nowrap;
   gap: 4px;
   white-space: nowrap;
@@ -292,7 +292,7 @@ tbody tr:nth-child(even) {
   .product-card {
     flex-direction: row;
     align-items: flex-start;
-    padding: 10px;
+    padding: 10px 5px;
     gap: 8px;
     overflow-x: hidden;
   }

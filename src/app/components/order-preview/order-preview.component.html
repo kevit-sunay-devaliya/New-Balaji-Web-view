@@ -7,7 +7,8 @@
       >
       <span class="sep">|</span>
       <span
-        >Total Amt: <strong>₹{{ previewGrandAmt.toFixed(2) }}</strong></span
+        >Net Payable:
+        <strong>₹{{ previewGrandGstTotal | indianCurrency }}</strong></span
       >
     </div>
   </div>
@@ -52,8 +53,8 @@
         <tr *ngFor="let row of previewRows; let i = index">
           <td>{{ i + 1 }}</td>
           <td class="preview-name">{{ row.productName }}</td>
-          <td>₹{{ row.mrp }}</td>
-          <td>₹{{ row.unitPrice }}</td>
+          <td>₹{{ row.mrp | indianCurrency }}</td>
+          <td>₹{{ row.unitPrice | indianCurrency }}</td>
           <td>{{ row.boxBunchQty || "-" }}</td>
           <td>{{ row.pattiQty || "-" }}</td>
           <td>{{ row.packetQty || "-" }}</td>
@@ -65,10 +66,12 @@
             }}</strong>
           </td>
           <td class="amt-cell gst-cell">{{ row.gstPercentage }}%</td>
-          <td class="amt-cell gst-cell">₹{{ row.gstAmount.toFixed(2) }}</td>
-          <td class="amt-cell">₹{{ row.amount.toFixed(2) }}</td>
+          <td class="amt-cell gst-cell">
+            ₹{{ row.gstAmount | indianCurrency }}
+          </td>
+          <td class="amt-cell">₹{{ row.amount | indianCurrency }}</td>
           <td class="amt-cell">
-            ₹{{ (row.amount + row.gstAmount).toFixed(2) }}
+            ₹{{ row.amount + row.gstAmount | indianCurrency }}
           </td>
         </tr>
       </tbody>
@@ -76,10 +79,10 @@
         <tr>
           <td colspan="10" class="footer-label"><strong>TOTAL</strong></td>
           <td class="amt-cell footer-total">
-            <strong>₹{{ previewGrandAmt.toFixed(2) }}</strong>
+            <strong>₹{{ previewGrandAmt | indianCurrency }}</strong>
           </td>
           <td class="amt-cell footer-total">
-            <strong>₹{{ previewGrandGstTotal.toFixed(2) }}</strong>
+            <strong>₹{{ previewGrandGstTotal | indianCurrency }}</strong>
           </td>
         </tr>
       </tfoot>
@@ -97,11 +100,11 @@
         <div class="preview-card-row">
           <div class="preview-card-stat">
             <span class="pcs-label">MRP</span>
-            <span class="pcs-value">₹{{ row.mrp }}</span>
+            <span class="pcs-value">₹{{ row.mrp | indianCurrency }}</span>
           </div>
           <div class="preview-card-stat">
             <span class="pcs-label">Rate</span>
-            <span class="pcs-value">₹{{ row.unitPrice }}</span>
+            <span class="pcs-value">₹{{ row.unitPrice | indianCurrency }}</span>
           </div>
           <div class="preview-card-stat" *ngIf="row.boxBunchQty">
             <span class="pcs-label">Box</span>
@@ -127,19 +130,19 @@
         <div class="preview-card-financials">
           <div class="preview-fin-item">
             <span class="fin-label">Taxable Amt</span>
-            <span class="fin-value">₹{{ row.amount.toFixed(2) }}</span>
+            <span class="fin-value">₹{{ row.amount | indianCurrency }}</span>
           </div>
           <div class="preview-fin-item">
             <span class="fin-label">GST ({{ row.gstPercentage }}%)</span>
             <span class="fin-value gst-cell"
-              >₹{{ row.gstAmount.toFixed(2) }}</span
+              >₹{{ row.gstAmount | indianCurrency }}</span
             >
           </div>
         </div>
         <div class="preview-card-netpay">
           <span class="netpay-label">Net Payable</span>
           <span class="netpay-value"
-            >₹{{ (row.amount + row.gstAmount).toFixed(2) }}</span
+            >₹{{ row.amount + row.gstAmount | indianCurrency }}</span
           >
         </div>
       </div>
@@ -148,18 +151,20 @@
     <div class="preview-cards-footer">
       <div class="footer-row">
         <span class="footer-row-label">Total Taxable</span>
-        <span class="footer-row-value">₹{{ previewGrandAmt.toFixed(2) }}</span>
+        <span class="footer-row-value"
+          >₹{{ previewGrandAmt | indianCurrency }}</span
+        >
       </div>
       <div class="footer-row">
         <span class="footer-row-label">Total GST</span>
         <span class="footer-row-value gst-cell"
-          >₹{{ previewGrandGst.toFixed(2) }}</span
+          >₹{{ previewGrandGst | indianCurrency }}</span
         >
       </div>
       <div class="footer-row footer-grand">
         <span class="footer-row-label">Grand Total</span>
         <span class="footer-row-value"
-          >₹{{ previewGrandGstTotal.toFixed(2) }}</span
+          >₹{{ previewGrandGstTotal | indianCurrency }}</span
         >
       </div>
     </div>

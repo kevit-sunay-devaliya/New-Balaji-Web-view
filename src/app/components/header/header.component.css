@@ -3,7 +3,7 @@
   top: 0;
   z-index: 1000;
   background: #ffffff;
-  padding: 0 0 10px;
+  padding: 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 }
 
@@ -17,20 +17,25 @@
 .brand-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 40px;
+  align-items: stretch;
+  gap: 14px;
   background: #ede100;
-  padding: 14px 14px 12px;
-}
-
-.brand-row .search-wrapper {
-  flex: 1;
-  min-width: 0;
+  padding: 10px 14px 10px;
 }
 
 .brand-identity {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+}
+
+.brand-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  justify-content: center;
 }
 
 .brand-logo {
@@ -60,11 +65,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 5px;
   flex: 1 1 0;
   min-width: 0;
-  height: 44px;
-  padding: 0 4px;
+  padding: 12px 4px;
   border-radius: 8px;
   box-sizing: border-box;
   line-height: 1.1;
@@ -130,17 +134,16 @@
 .header-chips-row .btn-cart,
 .header-chips-row .btn-theme {
   border: none;
-  padding: 0 4px;
+  padding: 8px 4px;
   border-radius: 8px;
   flex: 1 1 0;
   min-width: 0;
-  height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  gap: 2px;
+  gap: 5px;
   box-sizing: border-box;
   font-family: inherit;
   cursor: pointer;
@@ -151,7 +154,7 @@
 
 .header-chips-row .btn-cart .chip-label,
 .header-chips-row .btn-theme .chip-label {
-  font-size: clamp(8px, 1vw, 11px);
+  font-size: clamp(9px, 1vw, 11px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -293,7 +296,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 8px 14px 4px;
+  padding: 0;
 }
 
 .seg-btn {
@@ -333,7 +336,48 @@
 
 /* ─── Responsive ─────────────────────────────── */
 
-@media (max-width: 420px) {
+@media (min-width: 436px) and (max-width: 589px) {
+  .header-chips-row {
+    gap: 3px;
+    padding: 6px 4px;
+  }
+
+  .stat-chip,
+  .header-chips-row .btn-cart,
+  .header-chips-row .btn-theme {
+    height: 44px;
+    padding: 0 2px;
+  }
+
+  .chip-label {
+    font-size: 7.5px;
+    letter-spacing: 0;
+  }
+
+  .box-chip .chip-value,
+  .patti-chip .chip-value,
+  .pkt-chip .chip-value,
+  .amt-chip .chip-value,
+  .header-chips-row .btn-cart .chip-value,
+  .header-chips-row .btn-theme .chip-value {
+    font-size: 9px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 435px) {
+  .brand-right {
+    gap: 5px;
+  }
+
+  .seg-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
   .brand-logo {
     height: 42px;
   }
@@ -351,7 +395,7 @@
   }
 
   .chip-label {
-    font-size: 8px;
+    font-size: 9px;
     letter-spacing: 0;
   }
 
@@ -361,10 +405,30 @@
   .amt-chip .chip-value,
   .header-chips-row .btn-cart .chip-value,
   .header-chips-row .btn-theme .chip-value {
-    font-size: 8.5px;
+    font-size: 8px;
     max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 360px) {
+  .header-chips-row {
+    gap: 1px;
+    padding: 5px 1px;
+  }
+
+  .chip-label {
+    font-size: 7px;
+  }
+
+  .box-chip .chip-value,
+  .patti-chip .chip-value,
+  .pkt-chip .chip-value,
+  .amt-chip .chip-value,
+  .header-chips-row .btn-cart .chip-value,
+  .header-chips-row .btn-theme .chip-value {
+    font-size: 7.5px;
   }
 }

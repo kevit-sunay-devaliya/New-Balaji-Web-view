@@ -141,6 +141,11 @@
   background: #f0f6ff !important;
 }
 
+:host-context(.dark) .preview-table tbody tr:hover {
+  background: #2a3a50 !important;
+  color: #ffffff;
+}
+
 .preview-table tbody tr:nth-child(even) {
   background: #f7faff;
 }

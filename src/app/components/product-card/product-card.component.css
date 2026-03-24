@@ -294,7 +294,6 @@ tbody tr:nth-child(even) {
     align-items: flex-start;
     padding: 10px 5px;
     gap: 8px;
-    overflow-x: hidden;
   }
 
   .product-image {
@@ -345,7 +344,6 @@ tbody tr:nth-child(even) {
 
   .product-details {
     min-width: 0;
-    overflow-x: hidden;
   }
 
   table {
@@ -370,5 +368,57 @@ tbody tr:nth-child(even) {
     width: 32px;
     font-size: 10px;
     padding: 3px 1px;
+  }
+}
+
+@media (max-width: 393px) {
+  .product-card {
+    padding: 8px 4px;
+    gap: 6px;
+  }
+
+  .product-image {
+    width: 72px;
+    min-width: 72px;
+  }
+
+  .product-image img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .flavor-name {
+    font-size: 11px;
+  }
+
+  .flavor-sub {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .product-total {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+
+  table {
+    font-size: 8.5px;
+  }
+
+  th {
+    font-size: 7.5px;
+    padding: 3px 1px;
+  }
+
+  td {
+    padding: 3px 1px;
+    font-size: 8.5px;
+  }
+
+  .qty-input {
+    width: 26px;
+    font-size: 8.5px;
+    padding: 2px 1px;
+    border-radius: 4px;
   }
 }

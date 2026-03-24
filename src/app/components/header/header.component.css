@@ -350,7 +350,7 @@
   }
 
   .chip-label {
-    font-size: 7.5px;
+    font-size: 9px;
     letter-spacing: 0;
   }
 
@@ -360,7 +360,7 @@
   .amt-chip .chip-value,
   .header-chips-row .btn-cart .chip-value,
   .header-chips-row .btn-theme .chip-value {
-    font-size: 9px;
+    font-size: 8.5px;
     max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -413,14 +413,14 @@
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 408px) {
   .header-chips-row {
-    gap: 1px;
+    gap: 4px;
     padding: 5px 1px;
   }
 
   .chip-label {
-    font-size: 7px;
+    font-size: 9px;
   }
 
   .box-chip .chip-value,
@@ -429,6 +429,26 @@
   .amt-chip .chip-value,
   .header-chips-row .btn-cart .chip-value,
   .header-chips-row .btn-theme .chip-value {
-    font-size: 7.5px;
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 393px) {
+  .header-chips-row {
+    gap: 3px;
+    padding: 5px 1px;
+  }
+
+  .chip-label {
+    font-size: 9px;
+  }
+
+  .box-chip .chip-value,
+  .patti-chip .chip-value,
+  .pkt-chip .chip-value,
+  .amt-chip .chip-value,
+  .header-chips-row .btn-cart .chip-value,
+  .header-chips-row .btn-theme .chip-value {
+    font-size: 8px;
   }
 }

@@ -12,8 +12,6 @@
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
 }
 
-/* ─── Brand row ──────────────────────────────── */
-
 .brand-row {
   display: flex;
   justify-content: space-between;
@@ -43,8 +41,6 @@
   width: auto;
   object-fit: contain;
 }
-
-/* ─── Stat chips row ─────────────────────────── */
 
 .header-chips-row {
   display: flex;
@@ -128,8 +124,6 @@
 :host-context(.dark) .amt-chip .chip-value {
   color: #e2e8f0;
 }
-
-/* ─── Cart & Theme buttons ───────────────────── */
 
 .header-chips-row .btn-cart,
 .header-chips-row .btn-theme {
@@ -230,8 +224,6 @@
   color: #fff;
 }
 
-/* ─── Search ─────────────────────────────────── */
-
 .search-wrapper {
   position: relative;
   display: flex;
@@ -290,8 +282,6 @@
   background: #333;
 }
 
-/* ─── Segment filter ──────────────────────────── */
-
 .segment-filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -333,8 +323,6 @@
   color: #fff;
   border-color: transparent;
 }
-
-/* ─── Responsive ─────────────────────────────── */
 
 @media (min-width: 436px) and (max-width: 589px) {
   .header-chips-row {

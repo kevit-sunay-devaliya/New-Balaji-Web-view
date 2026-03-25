@@ -15,8 +15,6 @@
   color: #e0e0e0;
 }
 
-/* Toast — lives in the same component template as .app-wrapper,
-   so the ordinary descendant selector works fine here. */
 .toast-message {
   position: fixed;
   top: 80px;

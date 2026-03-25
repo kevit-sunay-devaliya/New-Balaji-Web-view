@@ -13,6 +13,8 @@ export class ProductListComponent {
   readonly vm$ = combineLatest({
     productGroups: this.orderService.productGroups$,
     grandQty: this.orderService.grandQty$,
+    loading: this.orderService.loading$,
+    error: this.orderService.error$,
   });
 
   constructor(

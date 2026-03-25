@@ -8,10 +8,10 @@ const CART_KEY = 'balaji_cart_mode';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
-  // ── Private BehaviorSubjects ───────────────────────────────────────────────
   private _isCartMode = new BehaviorSubject<boolean>(false);
   private _searchTerm = new BehaviorSubject<string>('');
   private _activeSegment = new BehaviorSubject<string>('ALL');
+  sortOrder: 'none' | 'asc' | 'desc' = 'none';
   private _segments = new BehaviorSubject<string[]>([]);
   private _productGroups = new BehaviorSubject<ProductGroup[]>([]);
   private _grandQty = new BehaviorSubject<number>(0);
@@ -19,10 +19,12 @@ export class OrderService {
   private _grandBox = new BehaviorSubject<number>(0);
   private _grandPatti = new BehaviorSubject<number>(0);
   private _grandPkt = new BehaviorSubject<number>(0);
+  private _loading = new BehaviorSubject<boolean>(false);
+  private _error = new BehaviorSubject<string | null>(null);
 
-  // ── Public observables (consumed by templates via async pipe) ──────────────
   readonly isCartMode$ = this._isCartMode.asObservable();
-  readonly searchTerm$ = this._searchTerm.asObservable();
+  readonly loading$ = this._loading.asObservable();
+  readonly error$ = this._error.asObservable();
   readonly activeSegment$ = this._activeSegment.asObservable();
   readonly segments$ = this._segments.asObservable();
   readonly productGroups$ = this._productGroups.asObservable();
@@ -32,42 +34,13 @@ export class OrderService {
   readonly grandPatti$ = this._grandPatti.asObservable();
   readonly grandPkt$ = this._grandPkt.asObservable();
 
-  // ── Getters for current values (used internally and for ngModel binding) ───
-  get isCartMode(): boolean {
-    return this._isCartMode.value;
-  }
   get searchTerm(): string {
     return this._searchTerm.value;
   }
   set searchTerm(val: string) {
     this._searchTerm.next(val);
   }
-  get activeSegment(): string {
-    return this._activeSegment.value;
-  }
-  get segments(): string[] {
-    return this._segments.value;
-  }
-  get productGroups(): ProductGroup[] {
-    return this._productGroups.value;
-  }
-  get grandQty(): number {
-    return this._grandQty.value;
-  }
-  get grandAmt(): number {
-    return this._grandAmt.value;
-  }
-  get grandBox(): number {
-    return this._grandBox.value;
-  }
-  get grandPatti(): number {
-    return this._grandPatti.value;
-  }
-  get grandPkt(): number {
-    return this._grandPkt.value;
-  }
 
-  // ── Internal full (unfiltered) groups list ────────────────────────────────
   allProducts: Product[] = [];
   private allGroups: ProductGroup[] = [];
   focusedProduct: Product | null = null;
@@ -79,29 +52,58 @@ export class OrderService {
   private init(): void {
     try {
       this._isCartMode.next(localStorage.getItem(CART_KEY) === 'true');
-    } catch {
-      // storage unavailable (e.g. incognito with blocked storage)
+    } catch (e) {
+      console.warn('localStorage unavailable, cart mode defaulting to false.', e);
     }
 
+    // --- STATIC DATA (API temporarily disabled) ---
     this.allProducts = PRODUCTS.map((p) => ({
       ...p,
       orderBoxBunch: undefined,
       orderPatti: undefined,
       orderPacket: undefined,
     }));
-
     this.restoreQuantities();
     this.buildGroups();
     this.recalcTotals();
-    this.applyCartFilter();
+    this.onSearch();
+    // --- END STATIC DATA ---
+
+    /* API CALL - re-enable when ready:
+    this._loading.next(true);
+    this._error.next(null);
+    this.productApiService.fetchProducts().subscribe({
+      next: (products) => {
+        this.allProducts = products.map((p) => ({
+          ...p,
+          orderBoxBunch: undefined,
+          orderPatti: undefined,
+          orderPacket: undefined,
+        }));
+        this.restoreQuantities();
+        this.buildGroups();
+        this.recalcTotals();
+        this.onSearch();
+        this._loading.next(false);
+      },
+      error: (err) => {
+        console.error('Failed to load products from API', err);
+        this._loading.next(false);
+        this._error.next('Failed to load products. Please try again.');
+      },
+    });
+    */
   }
 
   private restoreQuantities(): void {
     let saved: string | null = null;
     try {
       saved = localStorage.getItem(STORAGE_KEY);
-    } catch {
-      // storage unavailable
+    } catch (e) {
+      console.warn(
+        'localStorage unavailable, order quantities not restored.',
+        e,
+      );
     }
     if (!saved) return;
     try {
@@ -116,8 +118,16 @@ export class OrderService {
           p.orderPacket = data[p.productId].orderPacket;
         }
       }
-    } catch {
-      // ignore corrupt storage data
+    } catch (e) {
+      console.warn('Corrupt order data in localStorage, discarding.', e);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (removeErr) {
+        console.warn(
+          'Failed to remove corrupt order data from localStorage.',
+          removeErr,
+        );
+      }
     }
   }
 
@@ -141,8 +151,8 @@ export class OrderService {
     }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {
-      // storage full or unavailable
+    } catch (e) {
+      console.warn('Failed to save order quantities to localStorage.', e);
     }
   }
 
@@ -240,7 +250,7 @@ export class OrderService {
   onSearch(): void {
     const term = this._searchTerm.value.toLowerCase();
     const activeSeg = this._activeSegment.value;
-    const filtered = this.allGroups.filter((group) => {
+    let filtered = this.allGroups.filter((group) => {
       const matchesTerm =
         group.flavorEn.toLowerCase().includes(term) ||
         group.products.some((p) => p.productName.toLowerCase().includes(term));
@@ -249,9 +259,31 @@ export class OrderService {
         (activeSeg === 'NEW'
           ? group.products.some((p) => p.newItem)
           : group.segments.includes(activeSeg));
-      return matchesTerm && matchesSegment;
+      const matchesCart =
+        !this._isCartMode.value ||
+        group.products.some(
+          (p) =>
+            (p.orderBoxBunch || 0) > 0 ||
+            (p.orderPatti || 0) > 0 ||
+            (p.orderPacket || 0) > 0,
+        );
+      return matchesTerm && matchesSegment && matchesCart;
     });
+    if (this.sortOrder === 'asc') {
+      filtered = [...filtered].sort((a, b) =>
+        a.flavorEn.localeCompare(b.flavorEn),
+      );
+    } else if (this.sortOrder === 'desc') {
+      filtered = [...filtered].sort((a, b) =>
+        b.flavorEn.localeCompare(a.flavorEn),
+      );
+    }
     this._productGroups.next(filtered);
+  }
+
+  setSort(order: 'asc' | 'desc' | 'none'): void {
+    this.sortOrder = order;
+    this.onSearch();
   }
 
   setSegment(segment: string): void {
@@ -263,26 +295,14 @@ export class OrderService {
     this._isCartMode.next(!this._isCartMode.value);
     try {
       localStorage.setItem(CART_KEY, String(this._isCartMode.value));
-    } catch {
-      // storage unavailable
+    } catch (e) {
+      console.warn('Failed to persist cart mode to localStorage.', e);
     }
-    this.applyCartFilter();
+    this.onSearch();
   }
 
   private applyCartFilter(): void {
-    if (this._isCartMode.value) {
-      const filtered = this.allGroups.filter((group) =>
-        group.products.some(
-          (p) =>
-            (p.orderBoxBunch || 0) > 0 ||
-            (p.orderPatti || 0) > 0 ||
-            (p.orderPacket || 0) > 0,
-        ),
-      );
-      this._productGroups.next(filtered);
-    } else {
-      this.onSearch();
-    }
+    this.onSearch();
   }
 
   buildPreviewRows(): OrderPreviewRow[] {
@@ -345,8 +365,8 @@ export class OrderService {
     try {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(CART_KEY);
-    } catch {
-      // storage unavailable
+    } catch (e) {
+      console.warn('Failed to clear order data from localStorage.', e);
     }
     this._isCartMode.next(false);
     this.recalcTotals();

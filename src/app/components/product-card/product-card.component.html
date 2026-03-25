@@ -19,10 +19,16 @@
       <span *ngIf="group.hasPkt"
         >PKT: <strong>{{ group.groupPkt || 0 }}</strong></span
       >
-      &nbsp;|&nbsp; <strong>₹{{ group.groupTotal | indianCurrency }}</strong>
+      <span class="group-total-amount"
+        ><strong>₹{{ group.groupTotal | indianCurrency }}</strong></span
+      >
     </div>
-    <div class="flavor-name">{{ group.flavorEn }}</div>
-    <div class="flavor-sub">{{ group.flavorHi }}</div>
+    <div class="flavor-name">
+      {{ group.flavorEn
+      }}<span *ngIf="group.flavorHi" class="flavor-hi-inline">
+        | {{ group.flavorHi }}</span
+      >
+    </div>
 
     <div class="table-scroll">
       <table>
@@ -31,14 +37,14 @@
             <th>MRP</th>
             <th>Rate</th>
             <th>WT(g)</th>
-            <th *ngIf="group.hasBox">BOX({{ group.boxBunchLabel }})</th>
-            <th *ngIf="group.hasPatti">PATTI({{ group.pattiLabel }})</th>
+            <th *ngIf="group.hasBox">BOX<br /><span class="th-x">x</span> {{ group.boxBunchLabel }}</th>
+            <th *ngIf="group.hasPatti">PATTI<br /><span class="th-x">x</span> {{ group.pattiLabel }}</th>
             <th *ngIf="group.hasPkt">PKT</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let p of group.products; trackBy: productTrackBy">
-            <td class="mrp-cell">₹{{ p.MRP | indianCurrency }}</td>
+            <td class="mrp-cell">₹{{ p.MRP | number: "1.0-0" }}</td>
             <td>₹{{ p.unitPrice | indianCurrency }}</td>
             <td>{{ p.weight }}g</td>
             <td *ngIf="group.hasBox">

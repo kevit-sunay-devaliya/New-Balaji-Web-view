@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { OrderService } from '../../services/order.service';
 import { ThemeService } from '../../services/theme.service';
@@ -9,6 +9,8 @@ import { ThemeService } from '../../services/theme.service';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
+  showSortMenu = false;
+
   readonly vm$ = combineLatest({
     grandBox: this.orderService.grandBox$,
     grandPatti: this.orderService.grandPatti$,
@@ -24,6 +26,14 @@ export class HeaderComponent {
     public orderService: OrderService,
     public themeService: ThemeService,
   ) {}
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.sort-container')) {
+      this.showSortMenu = false;
+    }
+  }
 
   trackBySegment(_index: number, segment: string): string {
     return segment;

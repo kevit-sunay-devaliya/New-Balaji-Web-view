@@ -18,6 +18,15 @@
             placeholder="Search product or flavour..."
             class="search-input"
           />
+          <div class="sort-container">
+            <button class="sort-btn" (click)="showSortMenu = !showSortMenu" [class.sort-active]="orderService.sortOrder !== 'none'">
+              <span class="sort-icon">⇅</span>
+            </button>
+            <div class="sort-dropdown" *ngIf="showSortMenu">
+              <button class="sort-option" [class.selected]="orderService.sortOrder === 'asc'" (click)="orderService.setSort('asc'); showSortMenu = false">A → Z</button>
+              <button class="sort-option" [class.selected]="orderService.sortOrder === 'desc'" (click)="orderService.setSort('desc'); showSortMenu = false">Z → A</button>
+            </div>
+          </div>
         </div>
         <div class="segment-filter-row">
           <button

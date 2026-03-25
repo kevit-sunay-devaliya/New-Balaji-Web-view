@@ -1,16 +1,27 @@
 <app-header></app-header>
 
 <ng-container *ngIf="vm$ | async as vm">
-  <div class="bottom-bar" *ngIf="vm.grandQty > 0">
-    <button class="btn btn-continue" (click)="showPreview()">
-      🧾 &nbsp;View Order Summary &nbsp;→
-    </button>
+  <div class="loader-overlay" *ngIf="vm.loading">
+    <div class="loader-spinner"></div>
+    <p>Loading products…</p>
   </div>
 
-  <main class="container">
-    <app-product-card
-      *ngFor="let group of vm.productGroups; trackBy: groupTrackBy"
-      [group]="group"
-    ></app-product-card>
-  </main>
+  <div class="error-banner" *ngIf="vm.error && !vm.loading">
+    <p>⚠️ {{ vm.error }}</p>
+  </div>
+
+  <ng-container *ngIf="!vm.loading && !vm.error">
+    <div class="bottom-bar" *ngIf="vm.grandQty > 0">
+      <button class="btn btn-continue" (click)="showPreview()">
+        🧾 &nbsp;View Order Summary &nbsp;→
+      </button>
+    </div>
+
+    <main class="container">
+      <app-product-card
+        *ngFor="let group of vm.productGroups; trackBy: groupTrackBy"
+        [group]="group"
+      ></app-product-card>
+    </main>
+  </ng-container>
 </ng-container>

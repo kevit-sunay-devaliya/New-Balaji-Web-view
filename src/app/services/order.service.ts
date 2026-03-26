@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Product, PRODUCTS } from '../products.data';
+import { finalize } from 'rxjs/operators';
+import { Product } from '../products.data';
 import { ProductGroup, OrderPreviewRow } from '../models/product-group.model';
+import { ProductApiService } from './product-api.service';
+import { ProductsResponse } from './product-api.service';
 
 const STORAGE_KEY = 'balaji_order_quantities';
 const CART_KEY = 'balaji_cart_mode';
@@ -45,7 +48,7 @@ export class OrderService {
   private allGroups: ProductGroup[] = [];
   focusedProduct: Product | null = null;
 
-  constructor() {
+  constructor(private readonly productApiService: ProductApiService) {
     this.init();
   }
 
@@ -53,46 +56,44 @@ export class OrderService {
     try {
       this._isCartMode.next(localStorage.getItem(CART_KEY) === 'true');
     } catch (e) {
-      console.warn('localStorage unavailable, cart mode defaulting to false.', e);
+      console.warn(
+        'localStorage unavailable, cart mode defaulting to false.',
+        e,
+      );
     }
 
-    // --- STATIC DATA (API temporarily disabled) ---
-    this.allProducts = PRODUCTS.map((p) => ({
-      ...p,
-      orderBoxBunch: undefined,
-      orderPatti: undefined,
-      orderPacket: undefined,
-    }));
-    this.restoreQuantities();
-    this.buildGroups();
-    this.recalcTotals();
-    this.onSearch();
-    // --- END STATIC DATA ---
-
-    /* API CALL - re-enable when ready:
+    const dealerId =
+      new URLSearchParams(window.location.search).get('dealerId') ??
+      '001S2000000wm9AIAQ';
     this._loading.next(true);
     this._error.next(null);
-    this.productApiService.fetchProducts().subscribe({
-      next: (products) => {
-        this.allProducts = products.map((p) => ({
-          ...p,
-          orderBoxBunch: undefined,
-          orderPatti: undefined,
-          orderPacket: undefined,
-        }));
-        this.restoreQuantities();
-        this.buildGroups();
-        this.recalcTotals();
-        this.onSearch();
-        this._loading.next(false);
-      },
-      error: (err) => {
-        console.error('Failed to load products from API', err);
-        this._loading.next(false);
-        this._error.next('Failed to load products. Please try again.');
-      },
-    });
-    */
+    this.productApiService
+      .fetchProducts(dealerId)
+      .pipe(finalize(() => this._loading.next(false)))
+      .subscribe({
+        next: (response: ProductsResponse) => {
+          try {
+            const list = response.products ?? [];
+            this.allProducts = list.map((p: Product) => ({
+              ...p,
+              orderBoxBunch: undefined,
+              orderPatti: undefined,
+              orderPacket: undefined,
+            }));
+            this.restoreQuantities();
+            this.buildGroups();
+            this.recalcTotals();
+            this.onSearch();
+          } catch (err) {
+            console.error('Failed to process products from API', err);
+            this._error.next('Failed to load products. Please try again.');
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load products from API', err);
+          this._error.next('Failed to load products. Please try again.');
+        },
+      });
   }
 
   private restoreQuantities(): void {

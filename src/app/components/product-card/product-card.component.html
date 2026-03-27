@@ -37,8 +37,12 @@
             <th>MRP</th>
             <th>Rate</th>
             <th>WT(g)</th>
-            <th *ngIf="group.hasBox">BOX<br /><span class="th-x">x</span> {{ group.boxBunchLabel }}</th>
-            <th *ngIf="group.hasPatti">PATTI<br /><span class="th-x">x</span> {{ group.pattiLabel }}</th>
+            <th *ngIf="group.hasBox">
+              BOX<br /><span class="th-x">x</span> {{ group.boxBunchLabel }}
+            </th>
+            <th *ngIf="group.hasPatti">
+              PATTI<br /><span class="th-x">x</span> {{ group.pattiLabel }}
+            </th>
             <th *ngIf="group.hasPkt">PKT</th>
           </tr>
         </thead>

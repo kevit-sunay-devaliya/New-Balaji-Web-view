@@ -23,6 +23,7 @@ export interface ProductGroup {
 
 export interface OrderPreviewRow {
   flavorEn: string;
+  productCode: string;
   productName: string;
   mrp: string;
   unitPrice: number;

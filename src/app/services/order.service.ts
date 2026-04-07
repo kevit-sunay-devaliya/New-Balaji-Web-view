@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../products.data';
 import { ProductGroup, OrderPreviewRow } from '../models/product-group.model';
-import { ProductApiService } from './product-api.service';
+import { ProductApiService, CreateOrderPayload } from './product-api.service';
 import { ProductsResponse } from './product-api.service';
 
 const STORAGE_KEY = 'balaji_order_quantities';
@@ -47,6 +47,8 @@ export class OrderService {
   allProducts: Product[] = [];
   private allGroups: ProductGroup[] = [];
   focusedProduct: Product | null = null;
+  private retailerId = '001S2000004bJz3IAE';
+  private dealerId = '001S2000000wm9AIAQ';
 
   constructor(private readonly productApiService: ProductApiService) {
     this.init();
@@ -62,9 +64,11 @@ export class OrderService {
       );
     }
 
-    const dealerId =
-      new URLSearchParams(window.location.search).get('dealerId') ??
-      '001S2000000wm9AIAQ';
+    const params = new URLSearchParams(window.location.search);
+    const dealerId = params.get('dealerId') ?? '001S2000000wm9AIAQ';
+    const retailerId = params.get('retailerId') ?? '001S2000004bJz3IAE';
+    this.dealerId = dealerId;
+    this.retailerId = retailerId;
     this._loading.next(true);
     this._error.next(null);
     this.productApiService
@@ -318,6 +322,7 @@ export class OrderService {
           const baseAmt = totalUnits * p.unitPrice;
           rows.push({
             flavorEn: p.falvourEn,
+            productCode: p.productCode,
             productName: p.productName,
             mrp: p.MRP,
             unitPrice: p.unitPrice,
@@ -380,5 +385,33 @@ export class OrderService {
 
   groupTrackBy(_index: number, group: ProductGroup): string {
     return group.flavorEn;
+  }
+
+  submitOrder(): Observable<unknown> {
+    const products = this.buildPreviewRows()
+      .map((row) => {
+        const units: CreateOrderPayload['products'][0]['units'] = [];
+        if (row.packetQty > 0)
+          units.push({ unitType: 'Packet', quantity: row.packetQty });
+        if (row.pattiQty > 0)
+          units.push({ unitType: 'Patti', quantity: row.pattiQty });
+        if (row.boxBunchQty > 0)
+          units.push({ unitType: 'Box Bunch', quantity: row.boxBunchQty });
+        return {
+          productCode: row.productCode,
+          productName: row.productName,
+          units,
+        };
+      })
+      .filter((p) => p.units.length > 0);
+
+    const payload: CreateOrderPayload = {
+      retailerId: this.retailerId,
+      dealerId: this.dealerId,
+      products,
+      source: 'WhatsApp',
+    };
+
+    return this.productApiService.submitOrder(payload);
   }
 }

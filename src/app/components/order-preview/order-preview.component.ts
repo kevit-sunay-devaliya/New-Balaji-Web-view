@@ -55,9 +55,19 @@ export class OrderPreviewComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.orderService.clearOrder();
-    this.router.navigate(['/order']).then(() => {
-      window.location.href = 'https://wa.me/+919313234679';
+    this.isSubmitting = true;
+    this.orderService.submitOrder().subscribe({
+      next: () => {
+        this.orderService.clearOrder();
+        this.router.navigate(['/order']).then(() => {
+          window.location.href = 'https://wa.me/+919313234679';
+        });
+      },
+      error: (err) => {
+        console.error('Order submission failed', err);
+        this.isSubmitting = false;
+        alert('Failed to submit order. Please try again.');
+      },
     });
   }
 }

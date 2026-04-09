@@ -182,3 +182,36 @@
     </button>
   </div>
 </div>
+
+<!-- Consent Modal -->
+<div class="consent-backdrop" *ngIf="showConsentModal" (click)="cancelSubmit()">
+  <div class="consent-modal" (click)="$event.stopPropagation()">
+    <div class="consent-modal-header">
+      <span class="consent-modal-icon">⚠️</span>
+      <h3 class="consent-modal-title">Confirm Order</h3>
+    </div>
+    <div class="consent-modal-body">
+      <p class="consent-message">
+        There may be differences between ordered and delivered amounts. Please confirm if acceptable.
+      </p>
+      <label class="consent-checkbox-label">
+        <input
+          type="checkbox"
+          class="consent-checkbox"
+          [(ngModel)]="consentChecked"
+        />
+        <span class="consent-checkbox-text">I understand and accept</span>
+      </label>
+    </div>
+    <div class="consent-modal-footer">
+      <button class="btn consent-cancel-btn" (click)="cancelSubmit()">Cancel</button>
+      <button
+        class="btn consent-ok-btn"
+        (click)="confirmSubmit()"
+        [disabled]="!consentChecked"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+</div>

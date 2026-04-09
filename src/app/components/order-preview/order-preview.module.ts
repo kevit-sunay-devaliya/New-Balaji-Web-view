@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 
 import { OrderPreviewComponent } from './order-preview.component';
@@ -9,6 +10,6 @@ const routes: Routes = [{ path: '', component: OrderPreviewComponent }];
 
 @NgModule({
   declarations: [OrderPreviewComponent],
-  imports: [CommonModule, RouterModule.forChild(routes), SharedModule],
+  imports: [CommonModule, FormsModule, RouterModule.forChild(routes), SharedModule],
 })
 export class OrderPreviewModule {}

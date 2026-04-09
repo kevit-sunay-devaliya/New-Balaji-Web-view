@@ -11,6 +11,8 @@ import { OrderPreviewRow } from '../../models/product-group.model';
 export class OrderPreviewComponent implements OnInit {
   previewRows: OrderPreviewRow[] = [];
   isSubmitting = false;
+  showConsentModal = false;
+  consentChecked = false;
 
   previewGrandAmt = 0;
   previewGrandQty = 0;
@@ -55,6 +57,18 @@ export class OrderPreviewComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.consentChecked = false;
+    this.showConsentModal = true;
+  }
+
+  cancelSubmit(): void {
+    this.showConsentModal = false;
+    this.consentChecked = false;
+  }
+
+  confirmSubmit(): void {
+    if (!this.consentChecked) return;
+    this.showConsentModal = false;
     this.isSubmitting = true;
     this.orderService.submitOrder().subscribe({
       next: () => {

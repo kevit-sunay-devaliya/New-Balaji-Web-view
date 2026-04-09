@@ -1,14 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { ToastService } from './services/toast.service';
+import { OrderService } from './services/order.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   readonly vm$ = combineLatest({
     isDarkMode: this.themeService.isDarkMode$,
     toastVisible: this.toastService.visible$,
@@ -18,5 +19,16 @@ export class AppComponent {
   constructor(
     public themeService: ThemeService,
     public toastService: ToastService,
+    private readonly orderService: OrderService,
   ) {}
+
+  ngOnInit(): void {
+    const navEntry = performance.getEntriesByType(
+      'navigation',
+    )[0] as PerformanceNavigationTiming | undefined;
+    const isReload = navEntry?.type === 'reload';
+    if (!isReload) {
+      this.orderService.clearOrder();
+    }
+  }
 }

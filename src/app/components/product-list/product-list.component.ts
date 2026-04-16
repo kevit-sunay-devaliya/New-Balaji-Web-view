@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { Router } from '@angular/router';
 import { OrderService } from '../../services/order.service';
@@ -8,6 +8,7 @@ import { ProductGroup } from '../../models/product-group.model';
   selector: 'app-product-list',
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductListComponent {
   readonly vm$ = combineLatest({

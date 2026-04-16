@@ -1,12 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService } from '../../services/order.service';
 import { OrderPreviewRow } from '../../models/product-group.model';
+import { environment } from '../../../environments/environment';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-order-preview',
   templateUrl: './order-preview.component.html',
   styleUrls: ['./order-preview.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderPreviewComponent implements OnInit {
   previewRows: OrderPreviewRow[] = [];
@@ -23,7 +26,8 @@ export class OrderPreviewComponent implements OnInit {
 
   constructor(
     public orderService: OrderService,
-    private router: Router,
+    private readonly router: Router,
+    private readonly toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -74,13 +78,13 @@ export class OrderPreviewComponent implements OnInit {
       next: () => {
         this.orderService.clearOrder();
         this.router.navigate(['/order']).then(() => {
-          window.location.href = 'https://wa.me/+919313234679';
+          window.location.href = `https://wa.me/${environment.whatsappNumber}`;
         });
       },
       error: (err) => {
         console.error('Order submission failed', err);
         this.isSubmitting = false;
-        alert('Failed to submit order. Please try again.');
+        this.toastService.show('Failed to submit order. Please try again.');
       },
     });
   }

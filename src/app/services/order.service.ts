@@ -5,6 +5,7 @@ import { Product } from '../products.data';
 import { ProductGroup, OrderPreviewRow } from '../models/product-group.model';
 import { ProductApiService, CreateOrderPayload } from './product-api.service';
 import { ProductsResponse } from './product-api.service';
+import { environment } from '../../environments/environment';
 
 const STORAGE_KEY = 'balaji_order_quantities';
 const CART_KEY = 'balaji_cart_mode';
@@ -47,8 +48,8 @@ export class OrderService {
   allProducts: Product[] = [];
   private allGroups: ProductGroup[] = [];
   focusedProduct: Product | null = null;
-  private retailerId = '001S2000004bJz3IAE';
-  private dealerId = '001S2000000wm9AIAQ';
+  private retailerId = environment.defaultRetailerId;
+  private dealerId = environment.defaultDealerId;
 
   constructor(private readonly productApiService: ProductApiService) {
     this.init();
@@ -65,8 +66,9 @@ export class OrderService {
     }
 
     const params = new URLSearchParams(window.location.search);
-    const dealerId = params.get('dealerId') ?? '001S2000000wm9AIAQ';
-    const retailerId = params.get('retailerId') ?? '001S2000004bJz3IAE';
+    const dealerId = params.get('dealerId') ?? environment.defaultDealerId;
+    const retailerId =
+      params.get('retailerId') ?? environment.defaultRetailerId;
     this.dealerId = dealerId;
     this.retailerId = retailerId;
     this._loading.next(true);
@@ -161,7 +163,7 @@ export class OrderService {
     }
   }
 
-  buildGroups(): void {
+  private buildGroups(): void {
     const groupMap = new Map<string, ProductGroup>();
     for (const p of this.allProducts) {
       if (!groupMap.has(p.falvourEn)) {
@@ -306,10 +308,6 @@ export class OrderService {
     this.onSearch();
   }
 
-  private applyCartFilter(): void {
-    this.onSearch();
-  }
-
   buildPreviewRows(): OrderPreviewRow[] {
     const rows: OrderPreviewRow[] = [];
     for (const group of this.allGroups) {
@@ -376,7 +374,7 @@ export class OrderService {
     }
     this._isCartMode.next(false);
     this.recalcTotals();
-    this.applyCartFilter();
+    this.onSearch();
   }
 
   productTrackBy(_index: number, product: Product): string {

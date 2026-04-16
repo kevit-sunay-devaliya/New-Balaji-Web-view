@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { ToastService } from './services/toast.service';
@@ -8,6 +8,7 @@ import { OrderService } from './services/order.service';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
   readonly vm$ = combineLatest({
@@ -17,15 +18,15 @@ export class AppComponent implements OnInit {
   });
 
   constructor(
-    public themeService: ThemeService,
-    public toastService: ToastService,
+    private readonly themeService: ThemeService,
+    private readonly toastService: ToastService,
     private readonly orderService: OrderService,
   ) {}
 
   ngOnInit(): void {
-    const navEntry = performance.getEntriesByType(
-      'navigation',
-    )[0] as PerformanceNavigationTiming | undefined;
+    const navEntry = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
     const isReload = navEntry?.type === 'reload';
     if (!isReload) {
       this.orderService.clearOrder();

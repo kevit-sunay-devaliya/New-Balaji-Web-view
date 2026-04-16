@@ -1,4 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+} from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { OrderService } from '../../services/order.service';
 import { ThemeService } from '../../services/theme.service';
@@ -7,6 +11,7 @@ import { ThemeService } from '../../services/theme.service';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
   showSortMenu = false;

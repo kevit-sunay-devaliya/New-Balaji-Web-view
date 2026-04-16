@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '../products.data';
+import { environment } from '../../environments/environment';
 
 export interface ProductsResponse {
   totalCount: number;
@@ -29,26 +30,21 @@ export interface CreateOrderPayload {
 
 @Injectable({ providedIn: 'root' })
 export class ProductApiService {
+  private readonly baseUrl = environment.apiUrl;
+
   constructor(private readonly http: HttpClient) {}
 
   fetchProducts(dealerId: string): Observable<ProductsResponse> {
-    const headers = new HttpHeaders({ Authorization: 'Bearer 12312' });
     return this.http.post<ProductsResponse>(
-      'https://qn15mp51-3400.inc1.devtunnels.ms/custom/balaji/products',
+      `${this.baseUrl}/custom/balaji/products`,
       { dealerId },
-      { headers },
     );
   }
 
   submitOrder(payload: CreateOrderPayload): Observable<unknown> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer 12312',
-    });
     return this.http.post<unknown>(
-      'https://qn15mp51-3400.inc1.devtunnels.ms/custom/balaji/order',
+      `${this.baseUrl}/custom/balaji/order`,
       payload,
-      { headers },
     );
   }
 }

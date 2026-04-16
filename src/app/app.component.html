@@ -1,5 +1,5 @@
-<div class="app-wrapper" [class.dark]="themeService.isDarkMode$ | async">
-  <ng-container *ngIf="vm$ | async as vm">
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="app-wrapper" [class.dark]="vm.isDarkMode">
     <div class="toast-message" [class.toast-visible]="vm.toastVisible">
       <span class="toast-icon">⚠️</span>
       <div class="toast-body">
@@ -7,6 +7,6 @@
         <span class="toast-desc">{{ vm.toastMessage }}</span>
       </div>
     </div>
-  </ng-container>
-  <router-outlet></router-outlet>
-</div>
+    <router-outlet></router-outlet>
+  </div>
+</ng-container>

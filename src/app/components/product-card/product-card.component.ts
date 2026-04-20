@@ -21,6 +21,7 @@ export class ProductCardComponent {
   @ViewChild('videoEl') videoRef?: ElementRef<HTMLVideoElement>;
 
   protected cardFocused = false;
+  protected playingFromMid = false;
 
   constructor(
     public orderService: OrderService,
@@ -38,6 +39,7 @@ export class ProductCardComponent {
       this.cardFocused = true;
       this.cdr.markForCheck();
       if (video) {
+        this.playingFromMid = false;
         video.currentTime = 0;
         video.play();
       }
@@ -55,14 +57,20 @@ export class ProductCardComponent {
         this.cdr.markForCheck();
         const video = this.videoRef?.nativeElement;
         if (video) {
-          video.classList.add('video-fade-out');
-          setTimeout(() => {
-            video.pause();
-            video.currentTime = 0;
-            video.classList.remove('video-fade-out');
-          }, 400);
+          this.playingFromMid = true;
+          video.currentTime = video.duration / 2;
+          video.play();
         }
       }
     }, 0);
+  }
+
+  onVideoEnded(): void {
+    const video = this.videoRef?.nativeElement;
+    if (video && this.playingFromMid) {
+      this.playingFromMid = false;
+      video.pause();
+      video.currentTime = 0;
+    }
   }
 }

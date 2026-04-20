@@ -60,11 +60,6 @@
   object-fit: contain;
   padding: 8px;
   box-sizing: border-box;
-  transition: opacity 0.4s ease;
-}
-
-.product-image video.video-fade-out {
-  opacity: 0;
 }
 
 :host-context(.dark) .product-image {

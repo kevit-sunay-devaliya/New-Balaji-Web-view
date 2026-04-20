@@ -8,8 +8,9 @@
         playsinline
         preload="metadata"
         (timeupdate)="
-          videoEl.currentTime >= videoEl.duration / 2 && videoEl.pause()
+          !playingFromMid && videoEl.currentTime >= videoEl.duration / 2 && videoEl.pause()
         "
+        (ended)="onVideoEnded()"
       ></video>
     </ng-container>
     <ng-template #imageTemplate>

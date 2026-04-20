@@ -8,6 +8,7 @@ export interface ProductGroup {
   segments: string[];
   imageURL: string;
   zipperImageURL?: string;
+  isVideo: boolean;
   products: Product[];
   groupTotal: number;
   groupQty: number;

@@ -9,6 +9,7 @@ export interface Product {
   ProductFamily?: string;
   regularImageURL: string;
   zipperImageURL?: string;
+  mediaType?: 'image' | 'video';
   gstPercentage: number;
   boxBunch: number;
   patti: number;

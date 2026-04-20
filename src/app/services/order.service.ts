@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../products.data';
 import { ProductGroup, OrderPreviewRow } from '../models/product-group.model';
 import { ProductApiService, CreateOrderPayload } from './product-api.service';
 import { ProductsResponse } from './product-api.service';
 import { environment } from '../../environments/environment';
+import staticProducts from '../components/product-card/products.json';
 
 const STORAGE_KEY = 'balaji_order_quantities';
 const CART_KEY = 'balaji_cart_mode';
@@ -73,8 +74,7 @@ export class OrderService {
     this.retailerId = retailerId;
     this._loading.next(true);
     this._error.next(null);
-    this.productApiService
-      .fetchProducts(dealerId)
+    of(staticProducts as unknown as ProductsResponse)
       .pipe(finalize(() => this._loading.next(false)))
       .subscribe({
         next: (response: ProductsResponse) => {
@@ -175,6 +175,7 @@ export class OrderService {
           segments: [p.Segment],
           imageURL: p.regularImageURL,
           zipperImageURL: p.zipperImageURL,
+          isVideo: p.mediaType === 'video',
           products: [],
           groupTotal: 0,
           groupQty: 0,

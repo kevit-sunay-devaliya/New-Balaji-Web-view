@@ -32,12 +32,21 @@ export class ProductCardComponent {
     return product.productId;
   }
 
+  get focusedGroupProduct(): Product | null {
+    const fp = this.orderService.focusedProduct;
+    return fp && this.group.products.includes(fp) ? fp : null;
+  }
+
+  get groupHasNewItem(): boolean {
+    return this.group.products.some((p) => p.newItem);
+  }
+
   onInputFocus(product: Product): void {
     this.orderService.onInputFocus(product);
+    this.cdr.markForCheck();
     const video = this.videoRef?.nativeElement;
     if (!this.cardFocused) {
       this.cardFocused = true;
-      this.cdr.markForCheck();
       if (video) {
         this.playingFromMid = false;
         video.currentTime = 0;

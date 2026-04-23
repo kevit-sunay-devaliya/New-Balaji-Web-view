@@ -8,7 +8,9 @@
         playsinline
         preload="metadata"
         (timeupdate)="
-          !playingFromMid && videoEl.currentTime >= videoEl.duration / 2 && videoEl.pause()
+          !playingFromMid &&
+            videoEl.currentTime >= videoEl.duration / 2 &&
+            videoEl.pause()
         "
         (ended)="onVideoEnded()"
       ></video>
@@ -21,6 +23,7 @@
       />
     </ng-template>
     <span class="segment-badge">{{ group.flavorEn }}</span>
+    <span *ngIf="groupHasNewItem" class="new-sticker">✨ NEW</span>
   </div>
 
   <div class="product-details">
@@ -53,19 +56,34 @@
             <th>Rate</th>
             <th>WT(g)</th>
             <th *ngIf="group.hasBox">
-              BOX<br /><span class="th-bunch">({{ group.boxBunchLabel }})</span>
+              BOX<br /><span class="th-bunch"
+                >({{
+                  focusedGroupProduct ? focusedGroupProduct.boxBunch : "xx"
+                }})</span
+              >
             </th>
             <th *ngIf="group.hasPatti">
-              PATTI<br /><span class="th-bunch">({{ group.pattiLabel }})</span>
+              PATTI<br /><span class="th-bunch"
+                >({{
+                  focusedGroupProduct ? focusedGroupProduct.patti : "xx"
+                }})</span
+              >
             </th>
             <th *ngIf="group.hasPkt">PKT</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of group.products; trackBy: productTrackBy">
+          <tr
+            *ngFor="let p of group.products; trackBy: productTrackBy"
+            [class.new-item-row]="p.newItem"
+          >
             <td class="mrp-cell">₹{{ p.MRP | number: "1.0-0" }}</td>
             <td>₹{{ p.unitPrice | indianCurrency }}</td>
-            <td>{{ p.weight }}g</td>
+            <td>
+              {{ p.weight }}g<span *ngIf="p.newItem" class="new-badge"
+                >NEW</span
+              >
+            </td>
             <td *ngIf="group.hasBox">
               <input
                 type="number"

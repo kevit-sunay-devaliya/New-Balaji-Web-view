@@ -43,6 +43,7 @@
 
 .product-image {
   width: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -101,13 +102,39 @@
   color: #90caf9;
 }
 
+.new-sticker {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #ff6f00, #ffa000);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.8px;
+  box-shadow: 0 2px 6px rgba(255, 111, 0, 0.45);
+  pointer-events: none;
+}
+
 .new-badge {
-  background: #ffcc00;
-  color: #333;
-  font-size: 8px;
-  font-weight: bold;
+  background: linear-gradient(135deg, #ff6f00, #ffa000);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 900;
   padding: 1px 5px;
   border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+}
+
+.new-item-row {
+  background: #fff8e1;
+}
+
+:host-context(.dark) .new-item-row {
+  background: #2a2200;
 }
 
 .flavor-hi-inline {
@@ -401,6 +428,22 @@ tbody tr:nth-child(even) {
     font-size: 10px;
     padding: 3px 2px;
   }
+
+  .new-sticker {
+    font-size: 7px;
+    padding: 2px 5px;
+    top: 4px;
+    right: 4px;
+    letter-spacing: 0.4px;
+  }
+
+  .new-badge {
+    display: none;
+  }
+
+  .th-bunch {
+    font-size: 7.5px;
+  }
 }
 
 @media (max-width: 393px) {
@@ -459,5 +502,16 @@ tbody tr:nth-child(even) {
     font-size: 8.5px;
     padding: 2px 1px;
     border-radius: 4px;
+  }
+
+  .new-sticker {
+    font-size: 6px;
+    padding: 1px 4px;
+    top: 2px;
+    right: 2px;
+  }
+
+  .th-bunch {
+    font-size: 6.5px;
   }
 }

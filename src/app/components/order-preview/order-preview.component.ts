@@ -84,7 +84,7 @@ export class OrderPreviewComponent implements OnInit {
         pkt_qty: row.packetQty,
         amount_inr: row.amount,
       })),
-      total_amount_inr: this.grandTotalRounded,
+      total_amount_inr: this.previewRows.reduce((sum, r) => sum + r.amount, 0),
       retailerName: ORDER_DEFAULTS.retailerName,
       distributorName: ORDER_DEFAULTS.distributorName,
       orderNumber: ORDER_DEFAULTS.orderNumber,

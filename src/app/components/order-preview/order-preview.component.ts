@@ -1,7 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { OrderService } from '../../services/order.service';
 import { OrderPreviewRow } from '../../models/product-group.model';
+
+const API_BASE_URL = 'https://qn15mp51-3700.inc1.devtunnels.ms/custom/balaji';
+// const API_TOKEN = 'Y!*c7cGdteUdPSCV8HnV5IDSHGmFvM%U@xd2ikJJAHB5p@M3y**m';
+const API_TOKEN = '12312';
+const ORDER_API_URL = `${API_BASE_URL}/pdf/acknwledgement`;
+const WHATSAPP_REDIRECT_URL = 'https://wa.me/+919313234679';
+const ORDER_DEFAULTS = {
+  retailerName: 'Sunay Devaliya',
+  distributorName: 'Balaji Wafers',
+  orderNumber: String(Math.floor(1000 + Math.random() * 9000)),
+};
 
 @Component({
   selector: 'app-order-preview',
@@ -22,6 +34,7 @@ export class OrderPreviewComponent implements OnInit {
   constructor(
     public orderService: OrderService,
     private router: Router,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -55,9 +68,47 @@ export class OrderPreviewComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.orderService.clearOrder();
-    this.router.navigate(['/order']).then(() => {
-      window.location.href = 'https://wa.me/+919313234679';
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: API_TOKEN,
     });
+
+    const body = {
+      items: this.previewRows.map((row) => ({
+        item_name: row.productName,
+        box_qty: row.boxBunchQty,
+        patti_qty: row.pattiQty,
+        pkt_qty: row.packetQty,
+        amount_inr: row.amount,
+      })),
+      total_amount_inr: this.grandTotalRounded,
+      retailerName: ORDER_DEFAULTS.retailerName,
+      distributorName: ORDER_DEFAULTS.distributorName,
+      orderNumber: ORDER_DEFAULTS.orderNumber,
+      orderDate: new Date().toLocaleDateString(),
+      contactNumber: this.orderService.getContactNumber(),
+      name: this.orderService.getName(),
+    };
+
+    this.http
+      .post<any>(
+        'https://qn15mp51-3700.inc1.devtunnels.ms/custom/balaji/pdf/acknowledgement',
+        body,
+        { headers },
+      )
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.orderService.clearOrder();
+          window.location.href = WHATSAPP_REDIRECT_URL;
+        },
+        error: (err) => {
+          console.error('Order submission failed', err);
+          this.isSubmitting = false;
+        },
+      });
   }
 }

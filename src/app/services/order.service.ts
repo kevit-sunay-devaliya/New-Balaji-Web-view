@@ -21,6 +21,8 @@ export class OrderService {
   private _grandPkt = new BehaviorSubject<number>(0);
   private _loading = new BehaviorSubject<boolean>(false);
   private _error = new BehaviorSubject<string | null>(null);
+  private contactNumber: string | null = null;
+  private name: string | null = null;
 
   readonly isCartMode$ = this._isCartMode.asObservable();
   readonly loading$ = this._loading.asObservable();
@@ -53,7 +55,10 @@ export class OrderService {
     try {
       this._isCartMode.next(localStorage.getItem(CART_KEY) === 'true');
     } catch (e) {
-      console.warn('localStorage unavailable, cart mode defaulting to false.', e);
+      console.warn(
+        'localStorage unavailable, cart mode defaulting to false.',
+        e,
+      );
     }
 
     // --- STATIC DATA (API temporarily disabled) ---
@@ -371,6 +376,22 @@ export class OrderService {
     this._isCartMode.next(false);
     this.recalcTotals();
     this.applyCartFilter();
+  }
+
+  setContactNumber(num: string | null): void {
+    this.contactNumber = num;
+  }
+
+  getContactNumber(): string | null {
+    return this.contactNumber;
+  }
+
+  setName(name: string | null): void {
+    this.name = name;
+  }
+
+  getName(): string | null {
+    return this.name;
   }
 
   productTrackBy(_index: number, product: Product): string {

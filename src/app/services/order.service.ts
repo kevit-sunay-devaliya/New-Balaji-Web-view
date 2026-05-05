@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../products.data';
 import { ProductGroup, OrderPreviewRow } from '../models/product-group.model';
-import { ProductApiService, CreateOrderPayload } from './product-api.service';
-import { ProductsResponse } from './product-api.service';
+import {
+  ProductApiService,
+  CreateOrderPayload,
+  ProductsResponse,
+} from './product-api.service';
 import { environment } from '../../environments/environment';
-import staticProducts from '../components/product-card/products.json';
 
 const STORAGE_KEY = 'balaji_order_quantities';
 const CART_KEY = 'balaji_cart_mode';
@@ -74,7 +76,8 @@ export class OrderService {
     this.retailerId = retailerId;
     this._loading.next(true);
     this._error.next(null);
-    of(staticProducts as unknown as ProductsResponse)
+    this.productApiService
+      .fetchProducts(this.dealerId)
       .pipe(finalize(() => this._loading.next(false)))
       .subscribe({
         next: (response: ProductsResponse) => {
@@ -170,12 +173,14 @@ export class OrderService {
         groupMap.set(p.falvourEn, {
           flavorEn: p.falvourEn,
           flavorHi: p.falvourHi,
-          flavorGu: p.falvourGu,
+          flavorGu: p.falvourGu ?? '',
           segment: p.Segment,
           segments: [p.Segment],
           imageURL: p.regularImageURL,
+          gifImageURL: p.gifImageURL,
           zipperImageURL: p.zipperImageURL,
-          isVideo: p.mediaType === 'video',
+          isVideo: !!p.gifImageURL,
+          flavourSequence: p.flavour_Sequence ?? 0,
           products: [],
           groupTotal: 0,
           groupQty: 0,
@@ -195,7 +200,9 @@ export class OrderService {
         grp.segments.push(p.Segment);
       }
     }
-    this.allGroups = Array.from(groupMap.values());
+    this.allGroups = Array.from(groupMap.values()).sort(
+      (a, b) => a.flavourSequence - b.flavourSequence,
+    );
     this._segments.next([
       'ALL',
       'NEW',
@@ -350,6 +357,9 @@ export class OrderService {
   }
 
   getGroupImage(group: ProductGroup): string {
+    if (group.isVideo && group.gifImageURL) {
+      return group.gifImageURL;
+    }
     if (group.zipperImageURL && this.focusedProduct) {
       const isInGroup = group.products.includes(this.focusedProduct);
       if (isInGroup) {

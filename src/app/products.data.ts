@@ -6,8 +6,10 @@ export interface Product {
   MRP: string;
   unitPrice: number;
   Segment: string;
+  category?: string;
   ProductFamily?: string;
   regularImageURL: string;
+  gifImageURL?: string;
   zipperImageURL?: string;
   mediaType?: 'image' | 'video';
   gstPercentage: number;
@@ -18,9 +20,10 @@ export interface Product {
   isActive: boolean;
   falvourEn: string;
   falvourHi: string;
-  falvourGu: string;
+  falvourGu?: string;
+  flavour_Sequence?: number;
   productNameHi: string;
-  productNameGu: string;
+  productNameGu?: string;
   hsnCode: string;
   facings?: number;
   defaultOrderQuantity: number;

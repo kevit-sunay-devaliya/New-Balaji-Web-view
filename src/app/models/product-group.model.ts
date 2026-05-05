@@ -7,8 +7,10 @@ export interface ProductGroup {
   segment: string;
   segments: string[];
   imageURL: string;
+  gifImageURL?: string;
   zipperImageURL?: string;
   isVideo: boolean;
+  flavourSequence: number;
   products: Product[];
   groupTotal: number;
   groupQty: number;
